@@ -1,0 +1,5 @@
+{
+    "name": "web-playground",
+    "deps": [ "http head" ],
+    "location": "https://github.com/cgay/web-playground"
+}
