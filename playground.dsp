@@ -5,7 +5,6 @@
   </head>
   <%dsp:taglib name="playground"/>
   <body>
-    <dsp:show-query-values/>
     <h2>Enter some Dylan code:</h2>
     <form action="/play"
           method="post"
@@ -13,9 +12,11 @@
       <textarea name="dylan-code" value="" rows="20" cols="100"><playground:dylan-code/></textarea>
       <p/>
       <input name="submit" value="submit" type="submit"/>
-      <p/>
-      <h3>Compiler output:</h3>
-      <textarea name="output" value="" rows="20" cols="100"><playground:compiler-output/></textarea>
     </form>
+    <p/>
+    <h3>Build output:</h3>
+    <pre><playground:build-output/></pre>
+    <h3>Debug output:</h3>
+    <dsp:show-query-values/>
   </body>
 </html>
