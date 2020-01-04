@@ -11,9 +11,12 @@
     Notes:
     <ul>
       <li>This playground is still a work in progress!
-      <li>There is no way to define your own library or modules; your code
-          should assume the modules in these libraries are available:<br/>
-            <code>    common-dylan, io, system, collections</code>
+      <li>There is currently no way to define your own library or modules; you
+        can assume the definitions in these libraries are available:
+        <a href="https://opendylan.org/documentation/library-reference/common-dylan/index.html">common-dylan</a>,
+        <a href="https://opendylan.org/documentation/library-reference/io/index.html">io</a>,
+        <a href="https://opendylan.org/documentation/library-reference/system/index.html">system</a>,
+        <a href="https://opendylan.org/documentation/library-reference/collections/index.html">collections</a>,
       <li>The first build may be slow (minutes); subsequent builds should
           be much faster.
       <li>For now, if you want to see any output you must explicitly print
