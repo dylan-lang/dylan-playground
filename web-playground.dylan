@@ -43,13 +43,18 @@ define constant $default-code = #:string:|
 format-out("%=\n", your-code-here);
 |;
 
+define constant $warnings-attr = "warnings";
+define constant $exe-output-attr = "exe-output";
+
 define taglib playground ()
   tag dylan-code (page :: <playground-page>) ()
     output("%s", get-query-value("dylan-code") | $default-code);
-  tag build-output (page :: <playground-page>) ()
-    output("%s", get-attribute(page-context(), "build-output") | "");
+  tag warnings (page :: <playground-page>) ()
+    quote-html(get-attribute(page-context(), $warnings-attr) | "",
+               stream: current-response());
   tag exe-output (page :: <playground-page>) ()
-    output("%s", get-attribute(page-context(), "exe-output") | "");
+    quote-html(get-attribute(page-context(), $exe-output-attr) | "",
+               stream: current-response());
 end;
 
 define method respond-to-post (page :: <playground-page>, #key) => ()
@@ -59,9 +64,9 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
   if (dylan-code & dylan-code ~= "")
     block ()
       let project-name = generate-project-name();
-      let (build-output, exe-output) = build-and-run-code(project-name, dylan-code);
-      set-attribute(page-context(), "build-output", build-output);
-      set-attribute(page-context(), "exe-output", exe-output);
+      let (warnings, exe-output) = build-and-run-code(project-name, dylan-code);
+      set-attribute(page-context(), $warnings-attr, warnings);
+      set-attribute(page-context(), $exe-output-attr, exe-output);
     exception (ex :: <error>)
       format-to-string("Error: %s", ex)
     end;
@@ -77,7 +82,7 @@ end function;
 
 define function build-and-run-code
     (project-name :: <string>, dylan-code :: <string>)
- => (build-output :: <string>, exe-output :: <string>)
+ => (warnings :: <string>, exe-output :: <string>)
   let workdir = ensure-working-directory(project-name);
   let lid-path = generate-project-files(project-name, workdir, dylan-code);
   let (exe-path, warnings) = build-project(project-name, workdir, lid-path);
@@ -90,18 +95,16 @@ end function;
 
 define function run-executable
     (workdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
-  let output-path = as(<file-locator>, "/tmp/play-project-output.log"); // TODO
-  let exit-code
-    = os/run-application(as(<string>, exe-path),
-                         working-directory: workdir,
-                         input: #"null",
-                         output: output-path,
-                         error: #"output", // errors also go to output-path
-                         if-output-exists: #"truncate");
-  let output = fs/with-open-file(stream = output-path, direction: #"input", if-does-not-exist: #f)
-                 read-to-end(stream)
-               end;
-  output | "(no output)"
+  let exe-output
+    = with-output-to-string (stream)
+        os/run-application(as(<string>, exe-path),
+                           working-directory: workdir,
+                           input: #"null",
+                           outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
+                                        write(stream, output, end: _end);
+                                      end);
+      end;
+  exe-output | "(no output)"
 end function;
 
 define function ensure-working-directory
@@ -181,25 +184,34 @@ define function build-project
     (project-name :: <string>, workdir :: <directory-locator>, lid-path :: <file-locator>)
  => (exe :: false-or(<file-locator>), warnings :: <string>)
   let command = format-to-string("dylan-compiler -build %s", lid-path);
-  let output-path = "/tmp/build-output"; // TODO
-  let (exit-code, signal, child)
-    = os/run-application(command,
-                         working-directory: workdir,
-                         input: #"null",
-                         output: output-path,
-                         error: #"output", // also to output-path
-                         if-output-exists: #"truncate");
+  let builder-output
+    = with-output-to-string (stream)
+        os/run-application(command,
+                           working-directory: workdir,
+                           input: #"null",
+                           outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
+                                        write(stream, output, end: _end);
+                                      end);
+      end;
   let exe-path = merge-locators(as(<file-locator>,
                                    format-to-string("_build/bin/%s", project-name)),
                                 workdir);
-  let warnings = fs/with-open-file(stream = output-path, if-does-not-exist: #"error")
-                   read-to-end(stream);
-                 end;
+  let warnings = sanitize-build-output(builder-output);
   if (fs/file-exists?(exe-path))
     values(exe-path, warnings)
   else
     values(#f, warnings)
   end
+end function;
+
+define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
+  // Keep lines that start with '/' or space; they're warnings.
+  // Won't work on Windows? Don't plan to run this on Windows.
+  join(choose(method (line)
+                starts-with?(line, "/") | starts-with?(line, " ")
+              end,
+              split(output, "\n")),
+       "\n")
 end function;
 
 define function main ()

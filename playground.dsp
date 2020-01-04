@@ -31,13 +31,12 @@
       <input name="run" value="Run" type="submit"/>
     </form>
     <p/>
-    <h3>Project output</h3>
+    <h3>Program output</h3>
+
     <pre><playground:exe-output/></pre>
 
-    <h3>Build output</h3>
-    <pre><playground:build-output/></pre>
+    <h3>Compiler warnings</h3>
+    <pre><playground:warnings/></pre>
 
-    <h3>Debug output</h3>
-    <dsp:show-query-values/>
   </body>
 </html>
