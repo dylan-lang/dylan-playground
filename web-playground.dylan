@@ -1,35 +1,206 @@
 Module: web-playground
 Synopsis: Web app backing play.opendylan.org
 
+/*
+TODO
+
+* HTML escape the compiler output. Even inside <pre/> it's not good.
+
+* The TODOs in the code below are the more urgent ones. These are longer term
+  reminders.
+
+* Arrange for result values of last expression to be printed. Currently it's up
+  to user to use format-out.
+
+* Provide a bunch of code examples to select from and then modify.
+
+* Provide a way to create your own library and module definition rather than
+  using the canned ones. Probably just search for "define library" and "define
+  module" and omit the canned ones if present. Need to ensure they don't
+  redefine any of the core libraries.
+
+* Re-evaluate the list of imported modules in the canned module definition.
+  Not sure how Bruce came up with that list but it looks like a good start.
+
+* For now I compile all code in the same _build directory. Is this safe if
+  multiple compilations are running at the same time? At least I think the file
+  sets are disjoint as long as non of the used libraries need to be recompiled.
+  Could instead copy a _build dir that has core libs precompiled.
+
+*/
+
+// Make #:string:|...| syntax work.
+define function string-parser (s) => (s) s end;
+
 define class <playground-page> (<dylan-server-page>)
 end;
 
 define constant $playground-page = make(<playground-page>, source: "playground.dsp");
 
+define constant $default-code = #:string:|
+// Edit this code...
+
+format-out("%=\n", your-code-here);
+|;
+
 define taglib playground ()
   tag dylan-code (page :: <playground-page>) ()
-    output("%s", get-query-value("dylan-code") | "");
+    output("%s", get-query-value("dylan-code") | $default-code);
   tag build-output (page :: <playground-page>) ()
     output("%s", get-attribute(page-context(), "build-output") | "");
+  tag exe-output (page :: <playground-page>) ()
+    output("%s", get-attribute(page-context(), "exe-output") | "");
 end;
 
 define method respond-to-post (page :: <playground-page>, #key) => ()
   // Seems like text/html should be the default...
   set-header(current-response(), "Content-Type", "text/html");
   let dylan-code = get-query-value("dylan-code");
-  let build-output
-    = if (dylan-code & dylan-code ~= "")
-        build-code(dylan-code)
-      else
-        "Please enter some code above."
-      end;
-  set-attribute(page-context(), "build-output", build-output);
+  if (dylan-code & dylan-code ~= "")
+    block ()
+      let project-name = generate-project-name();
+      let (build-output, exe-output) = build-and-run-code(project-name, dylan-code);
+      set-attribute(page-context(), "build-output", build-output);
+      set-attribute(page-context(), "exe-output", exe-output);
+    exception (ex :: <error>)
+      format-to-string("Error: %s", ex)
+    end;
+  else
+    "Please enter some code above."
+  end;
   process-template(page);
 end;
 
-define function build-code (dylan-code :: <string>) => (output :: <string>)
-  concatenate("WARNING: unbound variable ", dylan-code)
-end;
+define function generate-project-name () => (project-name :: <string>)
+  "play-project"                // TODO
+end function;
+
+define function build-and-run-code
+    (project-name :: <string>, dylan-code :: <string>)
+ => (build-output :: <string>, exe-output :: <string>)
+  let workdir = ensure-working-directory(project-name);
+  let lid-path = generate-project-files(project-name, workdir, dylan-code);
+  let (exe-path, warnings) = build-project(project-name, workdir, lid-path);
+  if (exe-path)
+    values(warnings, run-executable(workdir, exe-path))
+  else
+    values(warnings, "No executable was created")
+  end
+end function;
+
+define function run-executable
+    (workdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
+  let output-path = as(<file-locator>, "/tmp/play-project-output.log"); // TODO
+  let exit-code
+    = os/run-application(as(<string>, exe-path),
+                         working-directory: workdir,
+                         input: #"null",
+                         output: output-path,
+                         error: #"output", // errors also go to output-path
+                         if-output-exists: #"truncate");
+  let output = fs/with-open-file(stream = output-path, direction: #"input", if-does-not-exist: #f)
+                 read-to-end(stream)
+               end;
+  output | "(no output)"
+end function;
+
+define function ensure-working-directory
+    (project-name :: <string>) => (pathname :: <directory-locator>)
+  // TODO: generate directory per user and copy in a prebuilt _build directory.
+  let workdir = as(<directory-locator>, format-to-string("/tmp/%s", project-name));
+  fs/ensure-directories-exist(workdir);
+  workdir
+end function;
+
+define function generate-project-files
+    (project-name :: <string>, workdir :: <directory-locator>, dylan-code :: <string>)
+ => (lid :: <file-locator>)
+  let (lid-path, lib-path, code-path)
+    = apply(values, project-locators(project-name, workdir));
+  fs/with-open-file (stream = lib-path, direction: #"output", if-exists: #"truncate")
+    format(stream, $library-file-template, project-name, project-name);
+  end;
+  fs/with-open-file (stream = code-path,  direction: #"output", if-exists: #"truncate")
+    format(stream, $code-file-template, project-name, dylan-code);
+  end;
+  fs/with-open-file (stream = lid-path,  direction: #"output", if-exists: #"truncate")
+    format(stream, $lid-file-template, project-name, project-name, project-name, project-name);
+  end;
+  lid-path
+end function;
+
+define function project-locators
+    (project-name :: <string>, workdir :: <directory-locator>) => (locators :: <sequence>)
+  map(method (fmt)
+        merge-locators(as(<file-locator>,
+                          format-to-string(fmt, project-name)),
+                       workdir)
+      end,
+      #("%s.lid", "%s-library.dylan", "%s-code.dylan"))
+end function;
+
+define constant $lid-file-template
+  = "library: %s\nexecutable: %s\nfiles: %s-library\n       %s-code\n";
+
+define constant $library-file-template = #:string:|module: dylan-user
+
+define library %s
+  use common-dylan;
+  use io;
+  use system;
+  use collections;
+end library;
+
+define module %s
+  use common-dylan,
+    exclude: { format-to-string };
+  use transcendentals;
+  use simple-random;
+  use machine-words;
+
+  use date;
+
+  use streams;
+  use standard-io;
+  use print;
+  use format;
+  use format-out;
+
+  use bit-vector;
+  use bit-set;
+  use byte-vector;
+  use collectors;
+  use set;
+  use table-extensions;
+end module;
+|;
+
+define constant $code-file-template = "module: %s\n\n%s\n";
+
+define function build-project
+    (project-name :: <string>, workdir :: <directory-locator>, lid-path :: <file-locator>)
+ => (exe :: false-or(<file-locator>), warnings :: <string>)
+  let command = format-to-string("dylan-compiler -build %s", lid-path);
+  let output-path = "/tmp/build-output"; // TODO
+  let (exit-code, signal, child)
+    = os/run-application(command,
+                         working-directory: workdir,
+                         input: #"null",
+                         output: output-path,
+                         error: #"output", // also to output-path
+                         if-output-exists: #"truncate");
+  let exe-path = merge-locators(as(<file-locator>,
+                                   format-to-string("_build/bin/%s", project-name)),
+                                workdir);
+  let warnings = fs/with-open-file(stream = output-path, if-does-not-exist: #"error")
+                   read-to-end(stream);
+                 end;
+  if (fs/file-exists?(exe-path))
+    values(exe-path, warnings)
+  else
+    values(#f, warnings)
+  end
+end function;
 
 define function main ()
   let server = make(<http-server>);
