@@ -77,7 +77,8 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
 end;
 
 define function generate-project-name () => (project-name :: <string>)
-  "play-project"                // TODO
+  // Good enough for now...
+  current-request().request-client-address.md5.hexdigest
 end function;
 
 define function build-and-run-code
@@ -109,7 +110,6 @@ end function;
 
 define function ensure-working-directory
     (project-name :: <string>) => (pathname :: <directory-locator>)
-  // TODO: generate directory per user and copy in a prebuilt _build directory.
   let workdir = as(<directory-locator>, format-to-string("/tmp/%s", project-name));
   fs/ensure-directories-exist(workdir);
   workdir
