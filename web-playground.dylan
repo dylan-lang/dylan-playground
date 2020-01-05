@@ -38,9 +38,13 @@ end;
 define constant $playground-page = make(<playground-page>, source: "playground.dsp");
 
 define constant $default-code = #:string:|
-// Edit this code...
+// Edit this code, then hit Run.
 
-format-out("%=\n", your-code-here);
+define function main ()
+  format-out("Hello, World!\n");
+end;
+
+main();
 |;
 
 define constant $warnings-attr = "warnings";
