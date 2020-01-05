@@ -53,7 +53,7 @@
      to listen for HTTP requests.  Use 0.0.0.0 to listen on all
      interfaces.  There may be multiple listener specs.  The default
      is to listen on 0.0.0.0:80 (non-ssl) if not specified.  -->
-<listener address="0.0.0.0" port="8008" ssl="no"/>
+<listener address="0.0.0.0" port="3600" ssl="no"/>
 
 <!-- Controls whether to check template modification dates each time
      the template is displayed, and reparse if necessary.  Obviously
