@@ -207,11 +207,23 @@ end function;
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
   // Keep lines that start with '/' or space; they're warnings.
   // Won't work on Windows? Don't plan to run this on Windows.
-  join(choose(method (line)
-                starts-with?(line, "/") | starts-with?(line, " ")
-              end,
-              split(output, "\n")),
-       "\n")
+  local method warning-line? (line)
+          starts-with?(line, "/") | starts-with?(line, " ")
+        end;
+  let lines = choose(warning-line?, split(output, "\n"));
+  // Remove all warnings from the dylan library.
+  // (Not technically necessary given the plan to install precompiled core libs.)
+  let trimmed = make(<stretchy-vector>);
+  let keep? = #t;
+  for (line in lines)
+    if (starts-with?(line, "/"))
+      keep? := ~find-substring(line, "/sources/dylan/");
+    end;
+    if (keep?)
+      add!(trimmed, line);
+    end;
+  end;
+  join(trimmed, "\n")
 end function;
 
 define function main ()

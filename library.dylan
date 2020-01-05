@@ -32,5 +32,5 @@ define module web-playground
   use streams,
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,
-    import: { starts-with? };
+    import: { find-substring, starts-with? };
 end module;
