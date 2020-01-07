@@ -49,6 +49,7 @@ main();
 
 define constant $warnings-attr = "warnings";
 define constant $exe-output-attr = "exe-output";
+define constant $debug-output-attr = "debug-output";
 
 define taglib playground ()
   tag dylan-code (page :: <playground-page>) ()
@@ -59,12 +60,16 @@ define taglib playground ()
   tag exe-output (page :: <playground-page>) ()
     quote-html(get-attribute(page-context(), $exe-output-attr) | "",
                stream: current-response());
+  tag debug-output (page :: <playground-page>) ()
+    quote-html(get-attribute(page-context(), $debug-output-attr) | "",
+               stream: current-response());
 end;
 
 define method respond-to-post (page :: <playground-page>, #key) => ()
   // Seems like text/html should be the default...
   set-header(current-response(), "Content-Type", "text/html");
   let dylan-code = get-query-value("dylan-code");
+  set-attribute(page-context(), $debug-output-attr, "foo");
   if (dylan-code & dylan-code ~= "")
     block ()
       let project-name = generate-project-name();

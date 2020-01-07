@@ -1,128 +1,33 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- copied from http server config.xml and modified. -->
+<!-- "Production" config for Dylan web playground.
+     See http/server/config/config.xml for documentation. -->
 
 <http-server>
 
-<!-- Dylan HTTP server configuration file
+  <server root="/dylan"
+          working-directory="/dylan/web-playground"
+          debug="no"
+          use-default-virtual-host="yes"
+          />
 
-     Pass this file to the http-server executable with the "config"
-     command-line option.
+  <listener address="0.0.0.0" port="3600" ssl="no"/>
 
-     Anything directly inside the <http-server> element in this file affects
-     the server's global environment or the default virtual host.  Anything
-     inside a <virtual-host> element applies only to that virtual
-     host.
+  <dsp reparse-templates="no" />
 
-     All settings shown in this file use the default values.
-  -->
+  <debug-log
+      name="http.server"
+      location="logs/http-server.log"
+      level="trace" />
 
+  <error-log
+      name="http.server.debug"
+      additive="yes" />
 
-<!-- <server> controls settings that apply to the server itself:
-     root
-         The root of the directory tree under which the server's
-         configuration and log files are kept.  Other pathnames are
-         merged against this one, so if they're relative they will be
-         relative to this.
-
-     working-directory
-         Change to this working directory.  The specified directory
-         is merged against the 'root' attribute first.
-
-     debug
-         Enabling this will make the server not try to handle errors
-         thrown during the execution of a server request.  Only
-         turn this on when running inside a development environment,
-         or the server will crash.  This should also be near the
-         beginning of the log file if you want to debug config file
-         loading.
-
-     use-default-virtual-host
-         Whether to lookup URLs using the default virtual host if
-         no host matching the request's Host header or URL host
-         can be found.
-     -->
-<server root="/home/cgay/dylan/workspaces/playground"
-        working-directory="web-playground"
-        debug="no"
-        use-default-virtual-host="yes"
-        />
-
-
-<!-- LISTENER elements are used to add an ip-addr/port pair on which
-     to listen for HTTP requests.  Use 0.0.0.0 to listen on all
-     interfaces.  There may be multiple listener specs.  The default
-     is to listen on 0.0.0.0:80 (non-ssl) if not specified.  -->
-<listener address="0.0.0.0" port="3600" ssl="no"/>
-
-<!-- Controls whether to check template modification dates each time
-     the template is displayed, and reparse if necessary.  Obviously
-     when enabled this will slow down page rendering.  The default is
-     no.  -->
-<dsp reparse-templates="yes" />
-
-
-<!-- Log messages come in three types: HTTP requests, errors, and
-     debug/info messages.  Where these log messages are stored is
-     determined by the <request-log>, <error-log> and <debug-log>
-     configuration settings, respectively.  Logging can be configured
-     to send all messages to the same place, or to separate them out
-     into different files.  The request-log messages follow a
-     specific format like that of other web servers which can be
-     parsed by automated tools.  Errors and debug info are more free
-     form.
-
-     Each virtual host has its own request, error, and debug log
-     targets, but by default they all forward their log messages to
-     the log targets set for the default virtual host, which in turn
-     defaults to logging to stdout/stderr.
-
-     The following options are recognized for each of the three
-     logging configuration options:
-
-       name     - Loggers are arranged in a hierarchy based on their
-                  names.  This can be used, along with additivity
-                  (below), to flexibly arrange logging to either
-                  multiple files or just one, and to combine different
-                  types of log messages together or separately.
-
-       additive - Whether the logger should pass log messages on to
-                  its parent logger.  Default is off.
-
-       location - A filename relative to the server root directory.
-                  If not specified, stderr will be used for the error
-                  log and stdout will be used for everything else.
-
-       max-size - The maximum size in bytes before the log is
-                  rotated.  Only useful if location is specified.
-
-       format   - A format control string that determines what each
-                  log line will look like.  The default value is:
-                  "%{date} %-5{level} [%{thread}] %{message}"
-                  Other options are %{millis} and %{pid}.  You get
-                  the idea.
-
-     The logs should be configured near the beginning of this config
-     file so debugging statements emitted during config file parsing
-     are logged to the correct targets.
-  -->
-<debug-log
-   name="http.server"
-   location="logs/http-server.log"
-   level="trace" />
-
-<!-- log errors to the same place as debug messages -->
-<error-log
-   name="http.server.debug"
-   additive="yes" />
-
-<!-- request lines go to a separate log -->
-<!-- format defaults to "%{message}" for the request log -->
-<request-log
-   name="http.server.requests"
-   additive="no"
-   location="logs/request.log"
-   max-size="20000000" />
-
+  <request-log
+      name="http.server.requests"
+      additive="no"
+      location="logs/request.log"
+      max-size="20000000" />
 
 </http-server>
