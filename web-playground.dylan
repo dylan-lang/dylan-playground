@@ -88,7 +88,7 @@ end;
 
 define function generate-project-name () => (project-name :: <string>)
   // Good enough for now...
-  current-request().request-client-address.md5.hexdigest
+  concatenate("play-", current-request().request-client-address.md5.hexdigest)
 end function;
 
 define function build-and-run-code
