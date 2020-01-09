@@ -20,9 +20,6 @@
       <li>The first build may be slow (minutes) as it builds everything down to
           the dylan library. Subsequent builds are much faster since they don't
           need to build the dylan, system, and io libraries.
-      <li>For now, if you want to see any output you must explicitly print
-          result values. For example, instead of just <code>1 + 2</code> write
-          <code>format-out("%=\n", 1 + 2);</code>
     </ul>
 
     <form action="/play"

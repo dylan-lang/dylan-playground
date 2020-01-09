@@ -4,13 +4,13 @@ Synopsis: Web app backing play.opendylan.org
 /*
 TODO
 
-* HTML escape the compiler output. Even inside <pre/> it's not good.
+* Provide a separate <textarea> for the library / module definitions, with a
+  widget to minimize it.
+
+* Permalinks for sharing examples.
 
 * The TODOs in the code below are the more urgent ones. These are longer term
   reminders.
-
-* Arrange for result values of last expression to be printed. Currently it's up
-  to user to use format-out.
 
 * Provide a bunch of code examples to select from and then modify.
 
@@ -24,8 +24,10 @@ TODO
 
 * For now I compile all code in the same _build directory. Is this safe if
   multiple compilations are running at the same time? At least I think the file
-  sets are disjoint as long as non of the used libraries need to be recompiled.
-  Could instead copy a _build dir that has core libs precompiled.
+  sets are disjoint as long as none of the used libraries need to be
+  recompiled.  Could instead copy a _build dir that has core libs precompiled.
+
+* Optionally show DFM and/or assembly output.
 
 */
 
@@ -41,7 +43,7 @@ define constant $default-code = #:string:|
 // Edit this code, then hit Run.
 
 define function main ()
-  format-out("Hello, World!\n");
+  format-out("Hello, %s!\n", "World");
 end;
 
 main();
@@ -69,7 +71,6 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
   // Seems like text/html should be the default...
   set-header(current-response(), "Content-Type", "text/html");
   let dylan-code = get-query-value("dylan-code");
-  set-attribute(page-context(), $debug-output-attr, "foo");
   if (dylan-code & dylan-code ~= "")
     block ()
       let project-name = generate-project-name();
@@ -111,6 +112,7 @@ define function run-executable
                            working-directory: workdir,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
+                                        log-debug("program output: %s", copy-sequence(output, end: _end));
                                         write(stream, output, end: _end);
                                       end);
       end;
@@ -156,34 +158,36 @@ define constant $lid-file-template
 
 define constant $library-file-template = #:string:|module: dylan-user
 
+// If a library has no import: clause here it imports a module with the same
+// name as the library.
 define library %s
-  use common-dylan;
-  use io;
-  use system;
-  use collections;
+  use collections, import: { bit-set, bit-vector, byte-vector, collectors, set, table-extensions };
+  use common-dylan, import: { common-dylan, machine-words, simple-random, transcendentals };
+  use hash-algorithms;
+  use io, import: { format, format-out, print, standard-io, streams };
+  use json;
+  use regular-expressions;
+  use strings;
+  use system, import: { date };
 end library;
 
 define module %s
-  use common-dylan,
-    exclude: { format-to-string };
-  use transcendentals;
-  use simple-random;
-  use machine-words;
-
-  use date;
-
-  use streams;
-  use standard-io;
-  use print;
-  use format;
-  use format-out;
-
-  use bit-vector;
   use bit-set;
+  use bit-vector;
   use byte-vector;
   use collectors;
+  use common-dylan;
+  use date;
+  use format-out;
+  use format;
+  use machine-words;
+  use print;
   use set;
+  use simple-random;
+  use standard-io;
+  use streams;
   use table-extensions;
+  use transcendentals;
 end module;
 |;
 
@@ -199,6 +203,7 @@ define function build-project
                            working-directory: workdir,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
+                                        log-debug("compiler output: %s", copy-sequence(output, end: _end));
                                         write(stream, output, end: _end);
                                       end);
       end;
@@ -213,13 +218,29 @@ define function build-project
   end
 end function;
 
+// Don't show compiler output lines with these prefixes.  Seemed safer than a
+// whitelist.
+define constant $blacklist-prefixes
+  = #["Opened project",
+      "Loading namespace",
+      "Updating definitions",
+      "Computing data models",
+      "Computing code models",
+      "Performing type analysis",
+      "Optimizing",
+      "Generating code",
+      "Linking object files",
+      "Saving database",
+      "Checking bindings",
+      "Linking"];
+
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
-  // Keep lines that start with '/' or space; they're warnings.
-  // Won't work on Windows? Don't plan to run this on Windows.
-  local method warning-line? (line)
-          starts-with?(line, "/") | starts-with?(line, " ")
+  local method keep-line? (line)
+          // Wouldn't mind having an option to dylan-compiler to turn off most
+          // of the output other than "building library foo" and warnings.
+          ~any?(starts-with?(line, _), $blacklist-prefixes)
         end;
-  let lines = choose(warning-line?, split(output, "\n"));
+  let lines = choose(keep-line?, split(output, "\n"));
   // Remove all warnings from the dylan library.
   // (Not technically necessary given the plan to install precompiled core libs.)
   let trimmed = make(<stretchy-vector>);

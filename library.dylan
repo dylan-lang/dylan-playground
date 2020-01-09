@@ -24,7 +24,11 @@ define module web-playground
     import: { hexdigest, md5 };
   use http-common,
     import: { get-attribute, quote-html, set-attribute, set-header };
-  use http-server;
+  use http-server,
+    import: { <http-server>,
+              add-resource, current-request, current-response, get-query-value,
+              http-server-main, log-debug, output, page-context, quote-html,
+              request-client-address, respond-to-post };
   use locators,
     import: { <directory-locator>, <file-locator>, merge-locators };
   use operating-system,

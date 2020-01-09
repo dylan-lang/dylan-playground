@@ -5,8 +5,14 @@
 
 <http-server>
 
+  <!--
   <server root="/dylan"
           working-directory="/dylan/web-playground"
+          debug="no"
+          use-default-virtual-host="yes"
+          />
+  -->
+  <server working-directory="web-playground"
           debug="no"
           use-default-virtual-host="yes"
           />
@@ -17,7 +23,6 @@
 
   <debug-log
       name="http.server"
-      location="logs/http-server.log"
       level="trace" />
 
   <error-log
@@ -27,7 +32,6 @@
   <request-log
       name="http.server.requests"
       additive="no"
-      location="logs/request.log"
       max-size="20000000" />
 
 </http-server>

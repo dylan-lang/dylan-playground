@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!-- assumes current directory is the one containing _build and web-playground -->
+
 <http-server>
 
-<server root="."
-        working-directory="."
-        debug="yes"
-        use-default-virtual-host="yes"
-        />
+  <server working-directory="web-playground"
+          debug="yes"
+          use-default-virtual-host="yes"
+          />
 
-<listener address="0.0.0.0" port="36200" ssl="no"/>
+  <listener address="0.0.0.0" port="3620" ssl="no"/>
 
-<dsp reparse-templates="yes" />
+  <dsp reparse-templates="yes" />
+
+  <debug-log
+      name="http.server"
+      level="trace" />
+
+  <error-log
+      name="http.server.debug"
+      additive="yes" />
+
+  <request-log
+      name="http.server.requests"
+      additive="no"
+      max-size="20000000" />
 
 </http-server>
+
