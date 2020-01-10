@@ -243,7 +243,9 @@ define constant $blacklist-prefixes
       "Linking object files",
       "Saving database",
       "Checking bindings",
-      "Linking"];
+      "Linking",
+      "Warning - Definition of {<c-statically-typed-function-pointer>",
+      "(This warning can be avoided"];
 
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
   local method keep-line? (line)
