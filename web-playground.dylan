@@ -47,7 +47,7 @@ end;
 define constant $playground-page = make(<playground-page>, source: "playground.dsp");
 
 define constant $default-code = #:string:|
-// Edit this code, then hit Run.
+// Edit this code, then hit Run!
 
 define function main ()
   format-out("Hello, %s!\n", "World");
