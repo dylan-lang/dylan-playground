@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# housel said: BTW when I installed my chroot I did apt install libgc-dev
+# libunwind-dev wget lsb-release gnupg software-properties-commonand then bash
+# -c $(wget -O - http://apt.llvm.org/llvm.sh) to install Clang
+
 #set -e  # exit on error
 
 # Run this as root.
