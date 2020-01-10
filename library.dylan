@@ -30,7 +30,7 @@ define module web-playground
               http-server-main, log-debug, output, page-context, quote-html,
               request-client-address, respond-to-post };
   use locators,
-    import: { <directory-locator>, <file-locator>, merge-locators };
+    import: { <directory-locator>, <file-locator>, merge-locators, subdirectory-locator };
   use operating-system,
     prefix: "os/";
   use streams,

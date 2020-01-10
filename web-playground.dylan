@@ -31,6 +31,13 @@ TODO
 
 */
 
+// Directory in which to run dylan-compiler, i.e. where the shared _build
+// directory and the project subdirectories live.  Plan is to use "dev" for
+// development use.
+//
+// TODO: make this a command line flag
+define constant $workdir = as(<directory-locator>, "/home/cgay/dylan/workspaces/playground/live");
+
 // Make #:string:|...| syntax work.
 define function string-parser (s) => (s) s end;
 
@@ -94,11 +101,11 @@ end function;
 define function build-and-run-code
     (project-name :: <string>, dylan-code :: <string>)
  => (warnings :: <string>, exe-output :: <string>)
-  let workdir = ensure-working-directory(project-name);
-  let lid-path = generate-project-files(project-name, workdir, dylan-code);
-  let (exe-path, warnings) = build-project(project-name, workdir, lid-path);
+  let project-dir = ensure-project-directory(project-name);
+  let lid-path = generate-project-files(project-name, project-dir, dylan-code);
+  let (exe-path, warnings) = build-project(project-name, project-dir, lid-path);
   if (exe-path)
-    values(warnings, run-executable(workdir, exe-path))
+    values(warnings, run-executable($workdir, exe-path))
   else
     values(warnings, "No executable was created")
   end
@@ -116,14 +123,18 @@ define function run-executable
                                         write(stream, output, end: _end);
                                       end);
       end;
-  exe-output | "(no output)"
+  if (exe-output = "")
+    "(no output)"
+  else
+    exe-output
+  end
 end function;
 
-define function ensure-working-directory
+define function ensure-project-directory
     (project-name :: <string>) => (pathname :: <directory-locator>)
-  let workdir = as(<directory-locator>, format-to-string("/tmp/%s", project-name));
-  fs/ensure-directories-exist(workdir);
-  workdir
+  let project-dir = subdirectory-locator($workdir, project-name);
+  fs/ensure-directories-exist(project-dir);
+  project-dir
 end function;
 
 define function generate-project-files
@@ -194,13 +205,13 @@ end module;
 define constant $code-file-template = "module: %s\n\n%s\n";
 
 define function build-project
-    (project-name :: <string>, workdir :: <directory-locator>, lid-path :: <file-locator>)
+    (project-name :: <string>, project-dir :: <directory-locator>, lid-path :: <file-locator>)
  => (exe :: false-or(<file-locator>), warnings :: <string>)
   let command = format-to-string("dylan-compiler -build %s", lid-path);
   let builder-output
     = with-output-to-string (stream)
         os/run-application(command,
-                           working-directory: workdir,
+                           working-directory: $workdir,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
                                         log-debug("compiler output: %s", copy-sequence(output, end: _end));
@@ -209,7 +220,7 @@ define function build-project
       end;
   let exe-path = merge-locators(as(<file-locator>,
                                    format-to-string("_build/bin/%s", project-name)),
-                                workdir);
+                                $workdir);
   let warnings = sanitize-build-output(builder-output);
   if (fs/file-exists?(exe-path))
     values(exe-path, warnings)
