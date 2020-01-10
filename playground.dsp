@@ -36,7 +36,7 @@
 
     <pre><playground:exe-output/></pre>
 
-    <h3>Compiler warnings</h3>
+    <h3>Compiler output</h3>
     <pre><playground:warnings/></pre>
 
     <h3>Debug output</h3>
