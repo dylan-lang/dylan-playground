@@ -22,7 +22,10 @@
           method="post"
           enctype="application/x-www-form-urlencoded">
       <code>
-        <textarea autofocus name="dylan-code" value="" rows="20" cols="100"><playground:dylan-code/></textarea>
+        <pre><playground:library-code/></pre>
+      </code>
+      <code>
+        <textarea autofocus name="main-code" value="" rows="20" cols="100"><playground:main-code/></textarea>
       </code>
       <p/>
       <input name="run" value="Run" type="submit"/>

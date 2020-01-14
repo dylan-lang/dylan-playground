@@ -4,8 +4,8 @@ Synopsis: Web app backing play.opendylan.org
 /*
 TODO
 
-* Provide a separate <textarea> for the library / module definitions, with a
-  widget to minimize it.
+* Prevent maliciousness or accidents like `while (#t) format-out("blah") end`
+  and `while (#t) end`.
 
 * Permalinks for sharing examples.
 
@@ -14,13 +14,10 @@ TODO
 
 * Provide a bunch of code examples to select from and then modify.
 
-* Provide a way to create your own library and module definition rather than
+* Allow the user to create their own library and module definition rather than
   using the canned ones. Probably just search for "define library" and "define
-  module" and omit the canned ones if present. Need to ensure they don't
-  redefine any of the core libraries.
-
-* Re-evaluate the list of imported modules in the canned module definition.
-  Not sure how Bruce came up with that list but it looks like a good start.
+  module" and omit the canned ones if present. Need to ensure they don't use
+  file-system, network, operating-system. Others?
 
 * For now I compile all code in the same _build directory. Is this safe if
   multiple compilations are running at the same time? At least I think the file
@@ -36,7 +33,7 @@ TODO
 // development use.
 //
 // TODO: make this a command line flag
-define constant $workdir = as(<directory-locator>, "/home/cgay/dylan/workspaces/playground/live");
+define constant $workdir = as(<directory-locator>, "/home/cgay/dylan/workspaces/playground/dev");
 
 // Make #:string:|...| syntax work.
 define function string-parser (s) => (s) s end;
@@ -49,20 +46,27 @@ define constant $playground-page = make(<playground-page>, source: "playground.d
 define constant $default-code = #:string:|
 // Edit this code, then hit Run!
 
-define function main ()
-  format-out("Hello, %s!\n", "World");
-end;
+format-out("Hello, %s!\n", direct-subclasses(<object>));
 
-main();
 |;
 
+define constant $library-code-attr = "library-code";
+define constant $main-code-attr = "main-code";
 define constant $warnings-attr = "warnings";
 define constant $exe-output-attr = "exe-output";
 define constant $debug-output-attr = "debug-output";
 
 define taglib playground ()
-  tag dylan-code (page :: <playground-page>) ()
-    output("%s", get-query-value("dylan-code") | $default-code);
+  tag main-code (page :: <playground-page>) ()
+    output("%s", get-query-value($main-code-attr) | $default-code);
+  tag library-code (page :: <playground-page>) ()
+    begin
+      let text = get-query-value($library-code-attr);
+      if (~text)
+        text := format-to-string($library-file-template, "play", "play");
+      end;
+      output("%s", text);
+    end;
   tag warnings (page :: <playground-page>) ()
     quote-html(get-attribute(page-context(), $warnings-attr) | "",
                stream: current-response());
@@ -77,18 +81,21 @@ end;
 define method respond-to-post (page :: <playground-page>, #key) => ()
   // Seems like text/html should be the default...
   set-header(current-response(), "Content-Type", "text/html");
-  let dylan-code = get-query-value("dylan-code");
-  if (dylan-code & dylan-code ~= "")
+  let main-code = get-query-value($main-code-attr);
+  let ctx = page-context();
+  if (main-code & main-code ~= "")
     block ()
       let project-name = generate-project-name();
-      let (warnings, exe-output) = build-and-run-code(project-name, dylan-code);
-      set-attribute(page-context(), $warnings-attr, warnings);
-      set-attribute(page-context(), $exe-output-attr, exe-output);
+      let (warnings, exe-output) = build-and-run-code(project-name, main-code);
+      log-debug("warnings = %=", warnings);
+      log-debug("exe-output = %=", exe-output);
+      set-attribute(ctx, $warnings-attr, warnings);
+      set-attribute(ctx, $exe-output-attr, exe-output);
     exception (ex :: <error>)
-      format-to-string("Error: %s", ex)
+      set-attribute(ctx, $warnings-attr, format-to-string("Error: %s", ex));
     end;
   else
-    "Please enter some code above."
+    set-attribute(ctx, $warnings-attr, "Please enter some code above.");
   end;
   process-template(page);
 end;
@@ -99,10 +106,10 @@ define function generate-project-name () => (project-name :: <string>)
 end function;
 
 define function build-and-run-code
-    (project-name :: <string>, dylan-code :: <string>)
+    (project-name :: <string>, main-code :: <string>)
  => (warnings :: <string>, exe-output :: <string>)
   let project-dir = ensure-project-directory(project-name);
-  let lid-path = generate-project-files(project-name, project-dir, dylan-code);
+  let lid-path = generate-project-files(project-name, project-dir, main-code);
   let (exe-path, warnings) = build-project(project-name, project-dir, lid-path);
   if (exe-path)
     values(warnings, run-executable($workdir, exe-path))
@@ -138,67 +145,45 @@ define function ensure-project-directory
 end function;
 
 define function generate-project-files
-    (project-name :: <string>, workdir :: <directory-locator>, dylan-code :: <string>)
+    (project-name :: <string>, workdir :: <directory-locator>, main-code :: <string>)
  => (lid :: <file-locator>)
-  let (lid-path, lib-path, code-path)
-    = apply(values, project-locators(project-name, workdir));
+  let (lid-path, lib-path, code-path) = project-locators(project-name, workdir);
   fs/with-open-file (stream = lib-path, direction: #"output", if-exists: #"truncate")
     format(stream, $library-file-template, project-name, project-name);
   end;
   fs/with-open-file (stream = code-path,  direction: #"output", if-exists: #"truncate")
-    format(stream, $code-file-template, project-name, dylan-code);
+    format(stream, $code-file-template, project-name, main-code);
   end;
   fs/with-open-file (stream = lid-path,  direction: #"output", if-exists: #"truncate")
-    format(stream, $lid-file-template, project-name, project-name, project-name, project-name);
+    format(stream, $lid-file-template, project-name, project-name);
   end;
   lid-path
 end function;
 
 define function project-locators
-    (project-name :: <string>, workdir :: <directory-locator>) => (locators :: <sequence>)
-  map(method (fmt)
-        merge-locators(as(<file-locator>,
-                          format-to-string(fmt, project-name)),
-                       workdir)
-      end,
-      #("%s.lid", "%s-library.dylan", "%s-code.dylan"))
+    (project-name :: <string>, workdir :: <directory-locator>)
+  values(merge-locators(as(<file-locator>, "play.lid"), workdir),
+         merge-locators(as(<file-locator>, "play-library.dylan"), workdir),
+         merge-locators(as(<file-locator>, "play.dylan"), workdir))
 end function;
 
 define constant $lid-file-template
-  = "library: %s\nexecutable: %s\nfiles: %s-library\n       %s-code\n";
+  = "library: %s\nexecutable: %s\nfiles: library\n       code\n";
 
-define constant $library-file-template = #:string:|module: dylan-user
+define constant $library-file-template = #:string:|Module: dylan-user
 
-// If a library has no import: clause here it imports a module with the same
+// If a library has no 'import:' clause here it imports a module with the same
 // name as the library.
 define library %s
-  use collections, import: { bit-set, bit-vector, byte-vector, collectors, set, table-extensions };
-  use common-dylan, import: { common-dylan, machine-words, simple-random, transcendentals };
-  use hash-algorithms;
-  use io, import: { format, format-out, print, standard-io, streams };
-  use json;
-  use regular-expressions;
-  use strings;
+  use common-dylan;
+  use io, import: { format-out };
   use system, import: { date };
 end library;
 
 define module %s
-  use bit-set;
-  use bit-vector;
-  use byte-vector;
-  use collectors;
-  use common-dylan;
-  use date;
-  use format-out;
-  use format;
-  use machine-words;
-  use print;
-  use set;
-  use simple-random;
-  use standard-io;
-  use streams;
-  use table-extensions;
-  use transcendentals;
+  use common-dylan;             // from common-dylan library
+  use date;                     // from system library
+  use format-out;               // from io library
 end module;
 |;
 
