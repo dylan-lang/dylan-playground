@@ -8,7 +8,6 @@
 
     <h2>Dylan Playground</h2>
 
-    Notes:
     <ul>
       <li>This playground is still a work in progress!
       <li>See the <a href="https://opendylan.org/books/drm/Contents" target="_blank">Dylan
@@ -18,9 +17,13 @@
         libraries.
     </ul>
 
-    <form action="/play"
+    <form action="/"
           method="post"
           enctype="application/x-www-form-urlencoded">
+      <b>Assume that this library and module definition are in effect for the code you
+      write.</b> In the future you will be able to define your own library and module
+      (with certain restrictions).
+      <p>
       <code>
         <pre><playground:library-code/></pre>
       </code>

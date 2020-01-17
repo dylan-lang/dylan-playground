@@ -4,18 +4,20 @@
 
 <http-server>
 
-  <server working-directory="web-playground"
+  <server working-directory="/home/cgay/dylan/workspaces/playground/web-playground"
           debug="yes"
           use-default-virtual-host="yes"
           />
 
-  <listener address="0.0.0.0" port="3620" ssl="no"/>
+  <listener address="0.0.0.0" port="3600" ssl="no"/>
 
   <dsp reparse-templates="yes" />
 
   <debug-log
       name="http.server"
-      level="trace" />
+      level="trace"
+      location="/home/cgay/dylan/workspaces/playground/dev/server.log"
+      />
 
   <error-log
       name="http.server.debug"
@@ -23,7 +25,7 @@
 
   <request-log
       name="http.server.requests"
-      additive="no"
+      additive="yes"
       max-size="20000000" />
 
 </http-server>

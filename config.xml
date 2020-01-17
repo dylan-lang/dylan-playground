@@ -5,33 +5,26 @@
 
 <http-server>
 
-  <!--
-  <server root="/dylan"
-          working-directory="/dylan/web-playground"
-          debug="no"
-          use-default-virtual-host="yes"
-          />
-  -->
-  <server working-directory="web-playground"
+  <server working-directory="/home/cgay/dylan/workspaces/playground/web-playground"
           debug="no"
           use-default-virtual-host="yes"
           />
 
-  <listener address="0.0.0.0" port="80" ssl="yes"/>
+  <listener address="0.0.0.0" port="80" ssl="no"/>
 
-  <dsp reparse-templates="no" />
+  <dsp reparse-templates="yes" />  <!-- until things settle down -->
 
   <debug-log
       name="http.server"
-      level="trace" />
-
+      level="trace"
+      location="/home/cgay/dylan/workspaces/playground/live/server.log"/>
   <error-log
       name="http.server.debug"
       additive="yes" />
 
   <request-log
       name="http.server.requests"
-      location="request.log"
+      location="/home/cgay/dylan/workspaces/playground/live/request.log"
       additive="no"
       max-size="20000000" />
 

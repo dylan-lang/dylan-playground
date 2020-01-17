@@ -4,6 +4,8 @@ Synopsis: Web app backing play.opendylan.org
 /*
 TODO
 
+* Don't run the previously built exe if the current build fails. 
+
 * Prevent maliciousness or accidents like `while (#t) format-out("blah") end`
   and `while (#t) end`.
 
@@ -46,7 +48,7 @@ define constant $playground-page = make(<playground-page>, source: "playground.d
 define constant $default-code = #:string:|
 // Edit this code, then hit Run!
 
-format-out("Hello, %s!\n", direct-subclasses(<object>));
+format-out("Hello, %s!\n", "World");
 
 |;
 
@@ -84,6 +86,7 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
   let main-code = get-query-value($main-code-attr);
   let ctx = page-context();
   if (main-code & main-code ~= "")
+    log-debug("program code: %s", main-code);
     block ()
       let project-name = generate-project-name();
       let (warnings, exe-output) = build-and-run-code(project-name, main-code);
@@ -147,7 +150,13 @@ end function;
 define function generate-project-files
     (project-name :: <string>, workdir :: <directory-locator>, main-code :: <string>)
  => (lid :: <file-locator>)
-  let (lid-path, lib-path, code-path) = project-locators(project-name, workdir);
+  // workdir has the unique project name in it so the base file names can
+  // always be the same..
+  let lib-file = "library.dylan";
+  let code-file = "main.dylan";
+  let lid-path = merge-locators(as(<file-locator>, "play.lid"), workdir);
+  let code-path = merge-locators(as(<file-locator>, code-file), workdir);
+  let lib-path = merge-locators(as(<file-locator>, lib-file), workdir);
   fs/with-open-file (stream = lib-path, direction: #"output", if-exists: #"truncate")
     format(stream, $library-file-template, project-name, project-name);
   end;
@@ -155,20 +164,13 @@ define function generate-project-files
     format(stream, $code-file-template, project-name, main-code);
   end;
   fs/with-open-file (stream = lid-path,  direction: #"output", if-exists: #"truncate")
-    format(stream, $lid-file-template, project-name, project-name);
+    format(stream, $lid-file-template, project-name, project-name, lib-file, code-file);
   end;
   lid-path
 end function;
 
-define function project-locators
-    (project-name :: <string>, workdir :: <directory-locator>)
-  values(merge-locators(as(<file-locator>, "play.lid"), workdir),
-         merge-locators(as(<file-locator>, "play-library.dylan"), workdir),
-         merge-locators(as(<file-locator>, "play.dylan"), workdir))
-end function;
-
 define constant $lid-file-template
-  = "library: %s\nexecutable: %s\nfiles: library\n       code\n";
+  = "library: %s\nexecutable: %s\nfiles: %s\n       %s\n";
 
 define constant $library-file-template = #:string:|Module: dylan-user
 
@@ -256,7 +258,7 @@ end function;
 
 define function main ()
   let server = make(<http-server>);
-  add-resource(server, "/play", $playground-page);
+  add-resource(server, "/", $playground-page);
   http-server-main(server: server);
 end function;
 
