@@ -11,6 +11,7 @@ define library web-playground
   use strings;
   use system,
     import: { file-system, locators, operating-system };
+  use uuid;
 end library;
 
 define module web-playground
@@ -27,6 +28,7 @@ define module web-playground
   use http-server,
     import: { <http-server>,
               add-resource, current-request, current-response, get-query-value,
+              get-session,
               http-server-main, log-debug, output, page-context, quote-html,
               request-client-address, respond-to-post };
   use locators,
@@ -37,4 +39,6 @@ define module web-playground
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,
     import: { find-substring, starts-with? };
+  use uuid,
+    import: { make-uuid4 };
 end module;

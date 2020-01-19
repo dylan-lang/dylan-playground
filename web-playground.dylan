@@ -52,7 +52,7 @@ format-out("Hello, %s!\n", "World");
 
 |;
 
-define constant $library-code-attr = "library-code";
+//define constant $library-code-attr = "library-code";
 define constant $main-code-attr = "main-code";
 define constant $warnings-attr = "warnings";
 define constant $exe-output-attr = "exe-output";
@@ -63,11 +63,8 @@ define taglib playground ()
     output("%s", get-query-value($main-code-attr) | $default-code);
   tag library-code (page :: <playground-page>) ()
     begin
-      let text = get-query-value($library-code-attr);
-      if (~text)
-        text := format-to-string($library-file-template, "play", "play");
-      end;
-      output("%s", text);
+      let name = generate-project-name();
+      output($library-file-template, name, name, name);
     end;
   tag warnings (page :: <playground-page>) ()
     quote-html(get-attribute(page-context(), $warnings-attr) | "",
@@ -91,7 +88,7 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
       let project-name = generate-project-name();
       let (warnings, exe-output) = build-and-run-code(project-name, main-code);
       log-debug("warnings = %=", warnings);
-      log-debug("exe-output = %=", exe-output);
+      log-debug("exe-output = %s", exe-output);
       set-attribute(ctx, $warnings-attr, warnings);
       set-attribute(ctx, $exe-output-attr, exe-output);
     exception (ex :: <error>)
@@ -104,8 +101,19 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
 end;
 
 define function generate-project-name () => (project-name :: <string>)
-  // Good enough for now...
-  concatenate("play-", current-request().request-client-address.md5.hexdigest)
+  concatenate("play-", short-session-id())
+end function;
+
+define function short-session-id () => (id :: <string>)
+  let key = "dylan-web-playground-id";
+  let session = get-session(current-request());
+  get-attribute(session, key)
+    | begin
+        let id = as(<string>, make-uuid4());
+        let id = copy-sequence(id, start: id.size - 12);
+        set-attribute(session, key, id);
+        id
+      end
 end function;
 
 define function build-and-run-code
@@ -129,7 +137,6 @@ define function run-executable
                            working-directory: workdir,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
-                                        log-debug("program output: %s", copy-sequence(output, end: _end));
                                         write(stream, output, end: _end);
                                       end);
       end;
@@ -154,11 +161,13 @@ define function generate-project-files
   // always be the same..
   let lib-file = "library.dylan";
   let code-file = "main.dylan";
-  let lid-path = merge-locators(as(<file-locator>, "play.lid"), workdir);
+  // Except that apparently the _build/build/ subdirectory that gets created
+  // uses the name of the LID file. I think this is an OD bug.
+  let lid-path = merge-locators(as(<file-locator>, concatenate(project-name, ".lid")), workdir);
   let code-path = merge-locators(as(<file-locator>, code-file), workdir);
   let lib-path = merge-locators(as(<file-locator>, lib-file), workdir);
   fs/with-open-file (stream = lib-path, direction: #"output", if-exists: #"truncate")
-    format(stream, $library-file-template, project-name, project-name);
+    format(stream, $library-file-template, project-name, project-name, project-name);
   end;
   fs/with-open-file (stream = code-path,  direction: #"output", if-exists: #"truncate")
     format(stream, $code-file-template, project-name, main-code);
@@ -172,29 +181,32 @@ end function;
 define constant $lid-file-template
   = "library: %s\nexecutable: %s\nfiles: %s\n       %s\n";
 
-define constant $library-file-template = #:string:|Module: dylan-user
+define constant $library-file-template = #:string:|Module: %s
 
-// If a library has no 'import:' clause here it imports a module with the same
-// name as the library.
 define library %s
-  use common-dylan;
-  use io, import: { format-out };
-  use system, import: { date };
+  use common-dylan, import: { common-dylan };
+  use io,           import: { format-out };
+  use system,       import: { date };
 end library;
 
 define module %s
-  use common-dylan;             // from common-dylan library
-  use date;                     // from system library
-  use format-out;               // from io library
+  use common-dylan;
+  use date;
+  use format-out;
 end module;
 |;
 
 define constant $code-file-template = "module: %s\n\n%s\n";
 
+
+// TODO: generate assembly code with this command
+//   clang-7 -O2 -fexceptions -S -o whatever.s _build/build/play/main.bc
+// Add -emit-llvm to get LLVM generic assembly code rather than platform specific.
+// The dylan-compiler -assemble flag only works for HARP.
 define function build-project
     (project-name :: <string>, project-dir :: <directory-locator>, lid-path :: <file-locator>)
  => (exe :: false-or(<file-locator>), warnings :: <string>)
-  let command = format-to-string("dylan-compiler -build %s", lid-path);
+  let command = format-to-string("dylan-compiler -build -dfm %s", lid-path);
   let builder-output
     = with-output-to-string (stream)
         os/run-application(command,
