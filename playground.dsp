@@ -10,19 +10,17 @@
 
     <ul>
       <li>This playground is still a work in progress!
-      <li>See the <a href="https://opendylan.org/books/drm/Contents" target="_blank">Dylan
-      Reference Manual</a> for documentation of core language features.
-      <li>See the <a href="https://opendylan.org/documentation/library-reference"
-        target="_blank">Dylan Library Reference</a> for documentation on specific
-        libraries.
+      <li>See some <a href="https://opendylan.org/documentation/#cheat-sheets"
+      target="_blank">Dylan Cheat Sheets</a>
+      and <a href="https://opendylan.org/documentation/library-reference"
+      target="_blank">library documentation</a>.
     </ul>
 
     <form action="/"
           method="post"
           enctype="application/x-www-form-urlencoded">
-      <b>Assume that this library and module definition are in effect for the code you
-      write.</b> In the future you will be able to define your own library and module
-      (with certain restrictions).
+      <b>Your code uses the following library/module definition. </b>(In the future you
+      will be able to define your own.)
       <p>
       <code>
         <pre><playground:library-code/></pre>

@@ -6,8 +6,9 @@ web browser.
 ## Installation
 
 * Install `dylan-tool`
-* Create a workspace containing this repository with `dylan new playground web-playground`.
-* Pull down all dependencies with `dylan update`.
+* Create a workspace containing this repository by running `dylan-tool new playground web-playground`.
+* cd playground
+* Pull down all dependencies with `dylan-tool update`.
 * Build with `dylan-compiler -build web-playground`
 * Create a chroot with `build-chroot.sh`.  (NOT WORKING YET)
 * Run the command it spits out.  (NOT WORKING YET)
@@ -18,15 +19,22 @@ web browser.
     sudo chmod 777 /etc/authbind/byport/80
     sudo chmod 777 /etc/authbind/byport/443
 
+* Run `web-playground/deploy.sh live` to deploy the code and assets to the
+  "live" directory.
+
 * Modify web-playground/config.xml to have an absolute pathname for the
-  server's working directory:
+  server-root directory::
 
-    <server working-directory="/path/to/web-playground"
-            debug="no"
-            use-default-virtual-host="yes"
-            />
+  ```xml
+  <server server-root="/path/to/live"
+          debug="no"
+          use-default-virtual-host="yes"
+          />
+  ```
 
-* Start the server with authbind and absolute pathnames everywhere:
+* Start the server with authbind if running it on port 80:
 
-    authbind /path/to/_build/bin/web-playground --config /path/to/web-playground/config.xml
-
+  ```xml
+  cd live
+  authbind bin/web-playground --config config.xml
+  ```

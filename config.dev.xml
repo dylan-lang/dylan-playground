@@ -4,7 +4,7 @@
 
 <http-server>
 
-  <server working-directory="/home/cgay/dylan/workspaces/playground/web-playground"
+  <server server-root="/home/cgay/dylan/workspaces/playground/dev"
           debug="yes"
           use-default-virtual-host="yes"
           />
@@ -16,7 +16,7 @@
   <debug-log
       name="http.server"
       level="trace"
-      location="/home/cgay/dylan/workspaces/playground/dev/server.log"
+      location="server.log"
       />
 
   <error-log
@@ -25,8 +25,11 @@
 
   <request-log
       name="http.server.requests"
-      additive="yes"
-      max-size="20000000" />
+      additive="yes" />
+
+  <!-- root-directory is relative to server-root (above). -->
+  <dylan-web-playground
+      root-directory="."
+      />
 
 </http-server>
-

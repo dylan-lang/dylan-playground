@@ -11,6 +11,7 @@ define library web-playground
   use strings;
   use system,
     import: { file-system, locators, operating-system };
+  use xml-parser;
   use uuid;
 end library;
 
@@ -27,10 +28,20 @@ define module web-playground
     import: { get-attribute, quote-html, set-attribute, set-header };
   use http-server,
     import: { <http-server>,
-              add-resource, current-request, current-response, get-query-value,
+              add-resource,
+              current-request,
+              current-response,
+              get-attr,
+              get-query-value,
               get-session,
-              http-server-main, log-debug, output, page-context, quote-html,
-              request-client-address, respond-to-post };
+              http-server-main,
+              log-debug,
+              output,
+              page-context,
+              process-config-element,
+              quote-html,
+              respond-to-post,
+              server-root };
   use locators,
     import: { <directory-locator>, <file-locator>, merge-locators, subdirectory-locator };
   use operating-system,
@@ -39,6 +50,8 @@ define module web-playground
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,
     import: { find-substring, starts-with? };
+  use xml-parser,
+    rename: { <element> => xml/<element> };
   use uuid,
     import: { make-uuid4 };
 end module;

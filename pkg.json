@@ -1,5 +1,10 @@
 {
     "name": "web-playground",
-    "deps": [ "hash-algorithms head", "http head", "strings head" ],
+    "deps": [
+        "hash-algorithms head",
+        "http head",
+        "strings head",
+        "xml-parser head"
+    ],
     "location": "https://github.com/cgay/web-playground"
 }

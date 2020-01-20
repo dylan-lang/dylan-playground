@@ -28,14 +28,21 @@ TODO
 
 * Optionally show DFM and/or assembly output.
 
+* Make it pretty.
+
 */
 
 // Directory in which to run dylan-compiler, i.e. where the shared _build
-// directory and the project subdirectories live.  Plan is to use "dev" for
-// development use.
-//
-// TODO: make this a command line flag
-define constant $workdir = as(<directory-locator>, "/home/cgay/dylan/workspaces/playground/dev");
+// directory and the project subdirectories live.
+define variable *workdir* :: false-or(<directory-locator>) = #f;
+
+define sideways method process-config-element
+    (server :: <http-server>, node :: xml/<element>, name == #"dylan-web-playground")
+  let workdir = get-attr(node, #"root-directory");
+  *workdir* := merge-locators(as(<directory-locator>,
+                                 workdir | server.server-root),
+                              server.server-root);
+end;
 
 // Make #:string:|...| syntax work.
 define function string-parser (s) => (s) s end;
@@ -123,7 +130,7 @@ define function build-and-run-code
   let lid-path = generate-project-files(project-name, project-dir, main-code);
   let (exe-path, warnings) = build-project(project-name, project-dir, lid-path);
   if (exe-path)
-    values(warnings, run-executable($workdir, exe-path))
+    values(warnings, run-executable(*workdir*, exe-path))
   else
     values(warnings, "No executable was created")
   end
@@ -149,7 +156,7 @@ end function;
 
 define function ensure-project-directory
     (project-name :: <string>) => (pathname :: <directory-locator>)
-  let project-dir = subdirectory-locator($workdir, project-name);
+  let project-dir = subdirectory-locator(*workdir*, project-name);
   fs/ensure-directories-exist(project-dir);
   project-dir
 end function;
@@ -210,7 +217,7 @@ define function build-project
   let builder-output
     = with-output-to-string (stream)
         os/run-application(command,
-                           working-directory: $workdir,
+                           working-directory: *workdir*,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
                                         log-debug("compiler output: %s", copy-sequence(output, end: _end));
@@ -219,7 +226,7 @@ define function build-project
       end;
   let exe-path = merge-locators(as(<file-locator>,
                                    format-to-string("_build/bin/%s", project-name)),
-                                $workdir);
+                                *workdir*);
   let warnings = sanitize-build-output(builder-output);
   if (fs/file-exists?(exe-path))
     values(exe-path, warnings)
