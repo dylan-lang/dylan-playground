@@ -34,7 +34,7 @@ web browser.
 
 * Start the server with authbind if running it on port 80:
 
-  ```xml
+  ```shell
   cd live
   authbind bin/web-playground --config config.xml
   ```
