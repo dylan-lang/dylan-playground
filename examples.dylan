@@ -14,12 +14,12 @@ define function show-class-hierarchy (class :: <class>)
                   ""
                 end;
     format-out("%s%s%s\n", indent, class, extra);
-      if (~seen?)
-        add!(seen, class);
-        for (subclass in subclasses)
-          loop(subclass, concatenate("    ", indent));
-        end
-      end if;
+    if (~seen?)
+      add!(seen, class);
+      for (subclass in subclasses)
+        loop(subclass, concatenate("    ", indent));
+      end
+    end if;
   end iterate;
 end function;
 
