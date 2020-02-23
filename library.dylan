@@ -43,13 +43,17 @@ define module web-playground
               respond-to-post,
               server-root };
   use locators,
-    import: { <directory-locator>, <file-locator>, merge-locators, subdirectory-locator };
+    import: { <directory-locator>,
+              <file-locator>,
+              merge-locators,
+              simplify-locator,
+              subdirectory-locator };
   use operating-system,
     prefix: "os/";
   use streams,
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,
-    import: { find-substring, starts-with? };
+    import: { find-substring, starts-with?, strip-right };
   use xml-parser,
     rename: { <element> => xml/<element> };
   use uuid,

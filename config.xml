@@ -5,7 +5,7 @@
 
 <http-server>
 
-  <server server-root="/home/cgay/dylan/workspaces/playground/live"
+  <server server-root="/home/cgay/dylan/workspaces/playground"
           debug="no"
           use-default-virtual-host="yes"
           />
@@ -30,7 +30,8 @@
 
   <!-- The directories are relative to server-root. -->
   <dylan-web-playground
-      root-directory="."
+      root-directory="live"
+      template-directory="web-playground"
       />
 
 </http-server>

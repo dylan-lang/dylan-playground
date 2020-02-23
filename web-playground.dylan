@@ -4,15 +4,15 @@ Synopsis: Web app backing play.opendylan.org
 /*
 TODO
 
+* The TODOs in the code below are the more urgent ones. These are longer term
+  reminders.
+
 * Don't run the previously built exe if the current build fails. 
 
 * Prevent maliciousness or accidents like `while (#t) format-out("blah") end`
   and `while (#t) end`.
 
 * Permalinks for sharing examples.
-
-* The TODOs in the code below are the more urgent ones. These are longer term
-  reminders.
 
 * Provide a bunch of code examples to select from and then modify.
 
@@ -32,25 +32,58 @@ TODO
 
 */
 
-// Directory in which to run dylan-compiler, i.e. where the shared _build
-// directory and the project subdirectories live.
-define variable *workdir* :: false-or(<directory-locator>) = #f;
+// Root of the playground. Directory where user project subdirectories live and
+// directory in which to run dylan-compiler, i.e. where the shared _build
+// directory lives.
+define variable *play-root-dir* :: false-or(<directory-locator>) = #f;
+
+define variable *template-directory* :: false-or(<directory-locator>) = #f;
+
+define variable *dylan-compiler-location* :: false-or(<file-locator>) = #f;
 
 define sideways method process-config-element
     (server :: <http-server>, node :: xml/<element>, name == #"dylan-web-playground")
-  let workdir = get-attr(node, #"root-directory");
-  *workdir* := merge-locators(as(<directory-locator>,
-                                 workdir | server.server-root),
-                              server.server-root);
-end;
+  let playdir = merge-locators(as(<directory-locator>,
+                                  get-attr(node, #"root-directory") | server.server-root),
+                               server.server-root);
+
+  // TODO: simplify-locator doesn't do what I expected, i.e., remove ../
+  *play-root-dir* := simplify-locator(playdir);
+  log-debug("root-directory is %s", *play-root-dir*);
+
+  let template-directory = get-attr(node, #"template-directory");
+  *template-directory*
+    := simplify-locator(if (template-directory)
+                          merge-locators(as(<directory-locator>, template-directory),
+                                         *play-root-dir*)
+                        else
+                          *play-root-dir*
+                        end);
+  log-debug("template-directory is %s", *template-directory*);
+
+  let dylan-compiler = get-attr(node, #"dylan-compiler");
+  let $DYLAN = os/environment-variable("DYLAN");
+  let dc = if (dylan-compiler)
+             as(<file-locator>, dylan-compiler)
+           elseif ($DYLAN)
+             merge-locators(as(<file-locator>, "opendylan/bin/dylan-compiler"),
+                            as(<directory-locator>, $DYLAN))
+           else
+             error("no Dylan compiler configured and $DYLAN not set");
+           end;
+  *dylan-compiler-location* := simplify-locator(dc);
+  if (~fs/file-exists?(*dylan-compiler-location*))
+    error("Dylan compiler binary doesn't exist: %s",
+          as(<string>, *dylan-compiler-location*));
+  end;
+  log-debug("dylan-compiler is %s", *dylan-compiler-location*);
+end method;
 
 // Make #:string:|...| syntax work.
 define function string-parser (s) => (s) s end;
 
 define class <playground-page> (<dylan-server-page>)
 end;
-
-define constant $playground-page = make(<playground-page>, source: "playground.dsp");
 
 define constant $default-code = #:string:|
 // Edit this code, then hit Run!
@@ -71,7 +104,7 @@ define taglib playground ()
   tag library-code (page :: <playground-page>) ()
     begin
       let name = generate-project-name();
-      output($library-file-template, name, name, name);
+      output($library-file-template, name, name);
     end;
   tag warnings (page :: <playground-page>) ()
     quote-html(get-attribute(page-context(), $warnings-attr) | "",
@@ -130,18 +163,18 @@ define function build-and-run-code
   let lid-path = generate-project-files(project-name, project-dir, main-code);
   let (exe-path, warnings) = build-project(project-name, project-dir, lid-path);
   if (exe-path)
-    values(warnings, run-executable(*workdir*, exe-path))
+    values(warnings, run-executable(*play-root-dir*, exe-path))
   else
     values(warnings, "No executable was created")
   end
 end function;
 
 define function run-executable
-    (workdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
+    (playdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
   let exe-output
     = with-output-to-string (stream)
         os/run-application(as(<string>, exe-path),
-                           working-directory: workdir,
+                           working-directory: playdir,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
                                         write(stream, output, end: _end);
@@ -156,25 +189,25 @@ end function;
 
 define function ensure-project-directory
     (project-name :: <string>) => (pathname :: <directory-locator>)
-  let project-dir = subdirectory-locator(*workdir*, project-name);
+  let project-dir = subdirectory-locator(*play-root-dir*, project-name);
   fs/ensure-directories-exist(project-dir);
   project-dir
 end function;
 
 define function generate-project-files
-    (project-name :: <string>, workdir :: <directory-locator>, main-code :: <string>)
+    (project-name :: <string>, playdir :: <directory-locator>, main-code :: <string>)
  => (lid :: <file-locator>)
-  // workdir has the unique project name in it so the base file names can
+  // playdir has the unique project name in it so the base file names can
   // always be the same..
   let lib-file = "library.dylan";
   let code-file = "main.dylan";
   // Except that apparently the _build/build/ subdirectory that gets created
   // uses the name of the LID file. I think this is an OD bug.
-  let lid-path = merge-locators(as(<file-locator>, concatenate(project-name, ".lid")), workdir);
-  let code-path = merge-locators(as(<file-locator>, code-file), workdir);
-  let lib-path = merge-locators(as(<file-locator>, lib-file), workdir);
+  let lid-path = merge-locators(as(<file-locator>, concatenate(project-name, ".lid")), playdir);
+  let code-path = merge-locators(as(<file-locator>, code-file), playdir);
+  let lib-path = merge-locators(as(<file-locator>, lib-file), playdir);
   fs/with-open-file (stream = lib-path, direction: #"output", if-exists: #"truncate")
-    format(stream, $library-file-template, project-name, project-name, project-name);
+    format(stream, $library-file-template, project-name, project-name);
   end;
   fs/with-open-file (stream = code-path,  direction: #"output", if-exists: #"truncate")
     format(stream, $code-file-template, project-name, main-code);
@@ -188,7 +221,7 @@ end function;
 define constant $lid-file-template
   = "library: %s\nexecutable: %s\nfiles: %s\n       %s\n";
 
-define constant $library-file-template = #:string:|Module: %s
+define constant $library-file-template = #:string:|Module: dylan-user
 
 define library %s
   use common-dylan, import: { common-dylan };
@@ -213,20 +246,22 @@ define constant $code-file-template = "module: %s\n\n%s\n";
 define function build-project
     (project-name :: <string>, project-dir :: <directory-locator>, lid-path :: <file-locator>)
  => (exe :: false-or(<file-locator>), warnings :: <string>)
-  let command = format-to-string("dylan-compiler -build -dfm %s", lid-path);
+  let command = format-to-string("%s -build -dfm %s",
+                                 as(<string>, *dylan-compiler-location*), lid-path);
   let builder-output
     = with-output-to-string (stream)
         os/run-application(command,
-                           working-directory: *workdir*,
+                           working-directory: *play-root-dir*,
                            input: #"null",
                            outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
-                                        log-debug("compiler output: %s", copy-sequence(output, end: _end));
+                                        log-debug("compiler output: %s",
+                                                  strip-right(copy-sequence(output, end: _end)));
                                         write(stream, output, end: _end);
                                       end);
       end;
   let exe-path = merge-locators(as(<file-locator>,
-                                   format-to-string("_build/bin/%s", project-name)),
-                                *workdir*);
+                                   format-to-string("./_build/bin/%s", project-name)),
+                                *play-root-dir*);
   let warnings = sanitize-build-output(builder-output);
   if (fs/file-exists?(exe-path))
     values(exe-path, warnings)
@@ -251,7 +286,8 @@ define constant $blacklist-prefixes
       "Checking bindings",
       "Linking",
       "Warning - Definition of {<c-statically-typed-function-pointer>",
-      "(This warning can be avoided"];
+      "(This warning can be avoided",
+      "Building targets"];
 
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
   local method keep-line? (line)
@@ -276,9 +312,14 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
 end function;
 
 define function main ()
-  let server = make(<http-server>);
-  add-resource(server, "/", $playground-page);
-  http-server-main(server: server);
+  local method before-startup (server :: <http-server>)
+          let source = merge-locators(as(<file-locator>, "playground.dsp"),
+                                      *template-directory*);
+          log-debug("source = %s", source);
+          let page = make(<playground-page>, source: source);
+          add-resource(server, "/", page);
+        end;
+  http-server-main(server: make(<http-server>), before-startup: before-startup);
 end function;
 
 main();

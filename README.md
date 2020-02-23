@@ -19,11 +19,11 @@ web browser.
     sudo chmod 777 /etc/authbind/byport/80
     sudo chmod 777 /etc/authbind/byport/443
 
-* Run `web-playground/deploy.sh live` to deploy the code and assets to the
-  "live" directory.
+* Run `cd web-playground; ./deploy.sh live` to deploy the code, assets, and
+  Open Dylan to the "live" directory.
 
-* Modify web-playground/config.xml to have an absolute pathname for the
-  server-root directory::
+* Modify `live/config.xml` to have an absolute pathname for the server-root
+  directory::
 
   ```xml
   <server server-root="/path/to/live"

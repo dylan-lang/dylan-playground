@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- assumes current directory is the one containing _build and web-playground -->
+<!-- dev config logs to stdout and uses the dev/ subdirectory. -->
 
 <http-server>
 
@@ -13,10 +13,10 @@
 
   <dsp reparse-templates="yes" />
 
+  <!-- Log to stdout by default. Add location="server.log" if desired. -->
   <debug-log
       name="http.server"
       level="trace"
-      location="server.log"
       />
 
   <error-log
@@ -27,9 +27,9 @@
       name="http.server.requests"
       additive="yes" />
 
-  <!-- root-directory is relative to server-root (above). -->
   <dylan-web-playground
-      root-directory="."
+      root-directory="/home/cgay/dylan/workspaces/playground/dev"
+      template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
       />
 
 </http-server>
