@@ -169,16 +169,26 @@ define function build-and-run-code
   end
 end function;
 
+define constant $max-output-bytes :: <integer> = 10000;
+
 define function run-executable
     (playdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
+  let output-bytes = 0;
   let exe-output
     = with-output-to-string (stream)
-        os/run-application(as(<string>, exe-path),
-                           working-directory: playdir,
-                           input: #"null",
-                           outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
-                                        write(stream, output, end: _end);
-                                      end);
+        block (return)
+          os/run-application(as(<string>, exe-path),
+                             working-directory: playdir,
+                             input: #"null",
+                             outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
+                                          write(stream, output, end: _end);
+                                          output-bytes := output-bytes + _end;
+                                          if (output-bytes > $max-output-bytes)
+                                            write(stream, "\n***execution terminated: too much output***\n");
+                                            return();
+                                          end;
+                                        end);
+        end block;
       end;
   if (exe-output = "")
     "(no output)"
