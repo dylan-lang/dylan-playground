@@ -132,7 +132,7 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
       set-attribute(ctx, $warnings-attr, warnings);
       set-attribute(ctx, $exe-output-attr, exe-output);
     exception (ex :: <error>)
-      set-attribute(ctx, $warnings-attr, format-to-string("Error: %s", ex));
+      set-attribute(ctx, $debug-output-attr, format-to-string("Error: %s", ex));
     end;
   else
     set-attribute(ctx, $warnings-attr, "Please enter some code above.");
@@ -169,21 +169,31 @@ define function build-and-run-code
   end
 end function;
 
-define constant $max-output-bytes :: <integer> = 10000;
+define constant $max-output-chars :: <integer> = 10000;
+define constant $max-memory-kbytes :: <integer> = 100000;
+define constant $max-cpu-time-seconds :: <integer> = 1;
 
 define function run-executable
     (playdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
   let output-bytes = 0;
+  // ulimit -t doesn't seem to have any effect. Maybe just detach the process,
+  // keep a timer and send SIGTERM instead.
+  let command
+    = format-to-string("/bin/sh -c 'ulimit -S -v %d && ulimit -S -c 0 && ulimit -S -t %d && exec %s'",
+                       $max-memory-kbytes,
+                       $max-cpu-time-seconds,
+                       as(<string>, exe-path));
+  log-debug("command = %s", command);
   let exe-output
     = with-output-to-string (stream)
         block (return)
-          os/run-application(as(<string>, exe-path),
+          os/run-application(command,
                              working-directory: playdir,
                              input: #"null",
                              outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
                                           write(stream, output, end: _end);
                                           output-bytes := output-bytes + _end;
-                                          if (output-bytes > $max-output-bytes)
+                                          if (output-bytes > $max-output-chars)
                                             write(stream, "\n***execution terminated: too much output***\n");
                                             return();
                                           end;
@@ -304,21 +314,9 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
           // Wouldn't mind having an option to dylan-compiler to turn off most
           // of the output other than "building library foo" and warnings.
           ~any?(starts-with?(line, _), $blacklist-prefixes)
+            & starts-with?(line, "/") & ~find-substring(line, "/sources/dylan/")
         end;
-  let lines = choose(keep-line?, split(output, "\n"));
-  // Remove all warnings from the dylan library.
-  // (Not technically necessary given the plan to install precompiled core libs.)
-  let trimmed = make(<stretchy-vector>);
-  let keep? = #t;
-  for (line in lines)
-    if (starts-with?(line, "/"))
-      keep? := ~find-substring(line, "/sources/dylan/");
-    end;
-    if (keep?)
-      add!(trimmed, line);
-    end;
-  end;
-  join(trimmed, "\n")
+  join(choose(keep-line?, split(output, "\n")), "\n")
 end function;
 
 define function main ()
