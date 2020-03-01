@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- "Production" config for Dylan web playground.
-     See http/server/config/config.xml for documentation. -->
+<!-- "Production" config for Dylan web playground.  See
+     http/server/config/config.xml for documentation on elements other than
+     <dylan-web-playground/>. -->
 
 <http-server>
 
-  <server server-root="/home/cgay/dylan/workspaces/playground"
+  <server server-root="/home/cgay/dylan/workspaces/playground/live"
           debug="no"
           use-default-virtual-host="yes"
           />
@@ -28,10 +29,11 @@
       additive="no"
       max-size="20000000" />
 
-  <!-- The directories are relative to server-root. -->
+  <!-- The directories are relative to server-root. Use 2019.1 compiler so that it's stable. -->
   <dylan-web-playground
-      root-directory="live"
-      template-directory="web-playground"
+      root-directory="/home/cgay/dylan/workspaces/playground/live"
+      template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
+      dylan-compiler="/home/cgay/dylan/opendylan-2019.1/bin/dylan-compiler"
       />
 
 </http-server>
