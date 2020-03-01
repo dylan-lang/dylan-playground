@@ -10,8 +10,6 @@ web browser.
 * cd playground
 * Pull down all dependencies with `dylan-tool update`.
 * Build with `dylan-compiler -build web-playground`
-* Create a chroot with `build-chroot.sh`.  (NOT WORKING YET)
-* Run the command it spits out.  (NOT WORKING YET)
 * I use authbind to allow non-privileged access to ports 80 and 443:
 
     sudo touch /etc/authbind/byport/80
@@ -19,11 +17,18 @@ web browser.
     sudo chmod 777 /etc/authbind/byport/80
     sudo chmod 777 /etc/authbind/byport/443
 
-* Run `cd web-playground; ./deploy.sh live` to deploy the code, assets, and
-  Open Dylan to the "live" directory.
+## Deployment
 
-* Modify `live/config.xml` to have an absolute pathname for the server-root
-  directory::
+I run the dev instance out of my "playground" workspace directory with
+`_build/bin/web-playground --config web-playground/config.dev.xml`.
+
+To deploy "live":
+
+* Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
+  Dylan to the "live" directory.
+
+* Modify `live/config.live.xml` to have an absolute pathname for the
+  server-root directory::
 
   ```xml
   <server server-root="/path/to/live"
@@ -36,5 +41,5 @@ web browser.
 
   ```shell
   cd live
-  authbind bin/web-playground --config config.xml
+  authbind bin/web-playground --config config.live.xml
   ```
