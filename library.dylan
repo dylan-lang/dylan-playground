@@ -10,13 +10,15 @@ define library web-playground
     import: { format, streams };
   use strings;
   use system,
-    import: { file-system, locators, operating-system };
+    import: { date, file-system, locators, operating-system };
   use xml-parser;
   use uuid;
 end library;
 
 define module web-playground
   use common-dylan;
+  use date,
+    import: { <day/time-duration>, current-date, decode-duration };
   use dsp;
   use file-system,
     prefix: "fs/";
@@ -50,6 +52,8 @@ define module web-playground
               subdirectory-locator };
   use operating-system,
     prefix: "os/";
+  use simple-profiling,         // from common-dylan
+    import: { timing };
   use streams,
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,

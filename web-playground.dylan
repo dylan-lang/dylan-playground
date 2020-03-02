@@ -268,21 +268,27 @@ define function build-project
  => (exe :: false-or(<file-locator>), warnings :: <string>)
   let command = format-to-string("%s -build -dfm %s",
                                  as(<string>, *dylan-compiler-location*), lid-path);
-  let builder-output
+  let timing-info = "";
+  let build-output
     = with-output-to-string (stream)
-        os/run-application(command,
-                           working-directory: *play-root-dir*,
-                           input: #"null",
-                           outputter: method (output :: <byte-string>, #key end: _end :: <integer>)
-                                        log-debug("compiler output: %s",
-                                                  strip-right(copy-sequence(output, end: _end)));
-                                        write(stream, output, end: _end);
-                                      end);
+        local method outputter (output :: <byte-string>, #key end: _end :: <integer>)
+                log-debug("compiler output: %s",
+                          strip-right(copy-sequence(output, end: _end)));
+                write(stream, output, end: _end);
+              end;
+        let (sec, usec)
+          = timing ()
+              os/run-application(command,
+                                 working-directory: *play-root-dir*,
+                                 input: #"null",
+                                 outputter: outputter);
+            end;
+        timing-info := format-to-string("in %d.%s seconds", sec, integer-to-string(usec, size: 6));
       end;
   let exe-path = merge-locators(as(<file-locator>,
                                    format-to-string("./_build/bin/%s", project-name)),
                                 *play-root-dir*);
-  let warnings = sanitize-build-output(builder-output);
+  let warnings = concatenate(sanitize-build-output(build-output), "\n", timing-info);
   if (fs/file-exists?(exe-path))
     values(exe-path, warnings)
   else
