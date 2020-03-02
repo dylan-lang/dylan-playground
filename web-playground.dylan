@@ -309,14 +309,33 @@ define constant $blacklist-prefixes
       "(This warning can be avoided",
       "Building targets"];
 
+// Remove blank lines, $blacklist-prefixes, and entire warnings that are in the
+// dylan library.
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
-  local method keep-line? (line)
-          // Wouldn't mind having an option to dylan-compiler to turn off most
-          // of the output other than "building library foo" and warnings.
-          ~any?(starts-with?(line, _), $blacklist-prefixes)
-            & starts-with?(line, "/") & ~find-substring(line, "/sources/dylan/")
-        end;
-  join(choose(keep-line?, split(output, "\n")), "\n")
+/* Example warning:
+/.../sources/dylan/collection.dylan:346.1-349.31: Warning - blah blah
+      ---------------------------------------------------
+ 346  define copy-down-method map-as-one (type == <list>,
+ 347                                      function :: <function>,
+ 348                                      collection ::  <explicit-key-collection>) =>
+ 349    (new-collection :: <vector>);
+      ------------------------------
+*/
+  let keep = make(<stretchy-vector>);
+  let in-dylan-warning? = #f;   // from leading slash until not leading space
+  for (full-line in split(output, "\n"))
+    let line = strip(full-line);
+    if (in-dylan-warning?)
+      if (empty?(line) | ~whitespace?(full-line[0]))
+        in-dylan-warning? := #f;
+      end;
+    elseif (starts-with?(line, "/") & find-substring(line, "/sources/dylan/"))
+      in-dylan-warning? := #t;
+    elseif (~empty?(line) & ~any?(starts-with?(line, _), $blacklist-prefixes))
+      add!(keep, line);
+    end;
+  end for;
+  join(keep, "\n")
 end function;
 
 define function main ()

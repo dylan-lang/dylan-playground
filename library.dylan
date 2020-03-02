@@ -53,7 +53,13 @@ define module web-playground
   use streams,
     import: { <stream>, read-to-end, with-output-to-string, write };
   use strings,
-    import: { find-substring, starts-with?, strip-right };
+    import: { decimal-digit?,
+              ends-with?,
+              find-substring,
+              starts-with?,
+              strip,
+              strip-right,
+              whitespace? };
   use xml-parser,
     rename: { <element> => xml/<element> };
   use uuid,
