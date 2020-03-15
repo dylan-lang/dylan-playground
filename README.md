@@ -29,14 +29,14 @@ To deploy "live":
 * Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
   Dylan to the "live" directory.
 
-* Modify `live/config.live.xml` to have an absolute pathname for the
-  server-root directory::
+* Modify `live/config.live.xml` to have absolute paths:
 
   ```xml
-  <server server-root="/path/to/live"
-          debug="no"
-          use-default-virtual-host="yes"
-          />
+  <dylan-web-playground
+      root-directory="/path/to/playground/live"
+      template-directory="/path/to/playground/live"
+      dylan-compiler="/path/to/opendylan/bin/dylan-compiler"
+      />
   ```
 
 * Start the server with authbind if running it on port 80:
