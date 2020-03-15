@@ -79,20 +79,9 @@ define sideways method process-config-element
   log-debug("dylan-compiler is %s", *dylan-compiler-location*);
 end method;
 
-// Make #:string:|...| syntax work.
-define function string-parser (s) => (s) s end;
-
 define class <playground-page> (<dylan-server-page>)
 end;
 
-define constant $default-code = #:string:|
-// Edit this code, then hit Run!
-
-format-out("Hello, %s!\n", "World");
-
-|;
-
-//define constant $library-code-attr = "library-code";
 define constant $main-code-attr = "main-code";
 define constant $warnings-attr = "warnings";
 define constant $exe-output-attr = "exe-output";
@@ -100,7 +89,7 @@ define constant $debug-output-attr = "debug-output";
 
 define taglib playground ()
   tag main-code (page :: <playground-page>) ()
-    output("%s", get-query-value($main-code-attr) | $default-code);
+    output("%s", get-query-value($main-code-attr) | find-example-code($hello-world));
   tag library-code (page :: <playground-page>) ()
     begin
       let name = generate-project-name();
@@ -115,6 +104,11 @@ define taglib playground ()
   tag debug-output (page :: <playground-page>) ()
     quote-html(get-attribute(page-context(), $debug-output-attr) | "",
                stream: current-response());
+  tag examples-menu (page :: <playground-page>) ()
+    for (v in $examples)
+      let name = v[0];
+      output("<option value=\"%s\">%s</option>\n", name, name);
+    end;
 end;
 
 define method respond-to-post (page :: <playground-page>, #key) => ()

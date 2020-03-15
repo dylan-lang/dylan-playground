@@ -7,7 +7,7 @@ define library web-playground
   use http-common;
   use http-server;
   use io,
-    import: { format, streams };
+    import: { format, format-out, streams };
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
@@ -24,6 +24,7 @@ define module web-playground
     prefix: "fs/";
   use format,
     import: { format, format-to-string };
+  use format-out;
   use hash-algorithms,
     import: { hexdigest, md5 };
   use http-common,

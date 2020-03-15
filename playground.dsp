@@ -69,16 +69,9 @@
         </div>
         <div class="examples-and-docs">
           <div>
-            <label for="example-menu">Choose an example:</label><br>
-            <select id="example-menu">
-              <option value="hello-world">Hello world</option>
-              <option value="basic-format">Basic formatting</option>
-              <option value="for-loop">Simple iteration</option>
-              <option value="factorial">Factorial</option>
-              <option value="fibonacci">Fibonacci</option>
-              <option value="classes">Classes</option>
-              <option value="type-hierarchy">Show Type Hierarchy</option>
-              <option value="error-handling">Simple Error Handling</option>
+            <label for="examples-menu">Choose an example:</label><br>
+            <select id="examples-menu">
+              <playground:examples-menu/>
             </select>
           </div>
           <div style="display: flex; flex-direction: column; padding-bottom: 10px">
