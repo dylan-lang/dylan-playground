@@ -1,35 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-  <title>Dylan Playground</title>
+  <head>
+    <%dsp:taglib name="playground"/>
 
-  <%dsp:taglib name="playground"/>
+    <title>Dylan Playground</title>
+
+    <style>
+      body {
+          font: Ariel, Helvetica, sans-serif;
+      }
+      .editor-row {
+          display: flex;
+      }
+      .editor-row > div {
+          background-color: #f1f1f1;
+          padding: 20px;
+      }
+      .examples-and-docs {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+      }
+      .examples-and-docs > div {
+          padding-bottom: 40px;
+      }
+    </style>
+  </head>
 
   <body>
 
-    <h2>Dylan Playground (a work in progress!)</h2>
+    <header>
+      <h2>Dylan Playground (a work in progress!)</h2>
+    </header>
 
-    <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Dylan Cheat Sheets</a>
-    &mdash;
-    <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Documentation</a>
-    &mdash;
-    <a href="https://opendylan.org/books/drm/Index">Language Reference</a>
-    <p>
+    <div id="module-definition">
+      Your code is compiled using the following library/module definition:
+      <code>
+        <pre><playground:library-code/></pre>
+      </code>
+    </div>
+    <button id="module-button" onClick="toggleShowModule()">Hide module definition</button>
+    <script>
+      function toggleShowModule() {
+          var mod = document.getElementById("module-definition");
+          var but = document.getElementById("module-button");
+          if (mod.style.display === "none") {
+              mod.style.display = "block";
+              but.textContent = "Hide module definition";
+          } else {
+              mod.style.display = "none";
+              but.textContent = "Show module definition";
+          }
+      }
+    </script>
+
     <form action="/"
           method="post"
           enctype="application/x-www-form-urlencoded">
-      <p>
-      <code>
-        // Code is compiled using the following library/module definition.
-        <pre><playground:library-code/></pre>
-      </code>
-      <code>
-        <textarea autofocus name="main-code" value="" rows="20" cols="90"><playground:main-code/></textarea>
-      </code>
+
+      <div class="editor-row">
+        <div>
+          <textarea autofocus
+                    style="background-color: #f5e8c4"
+                    name="main-code"
+                    value=""
+                    rows="20"
+                    cols="90"><playground:main-code/></textarea>
+        </div>
+        <div class="examples-and-docs">
+          <div>
+            <label for="example-menu">Choose an example:</label><br>
+            <select id="example-menu">
+              <option value="hello-world">Hello world</option>
+              <option value="basic-format">Basic formatting</option>
+              <option value="for-loop">Simple iteration</option>
+              <option value="factorial">Factorial</option>
+              <option value="fibonacci">Fibonacci</option>
+              <option value="classes">Classes</option>
+              <option value="type-hierarchy">Show Type Hierarchy</option>
+              <option value="error-handling">Simple Error Handling</option>
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; padding-bottom: 10px">
+            <div>Need help?</div>
+            <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
+            <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
+            <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
+          </div>
+        </div>
+      </div>
       <br>
       <input name="run" value="Run" type="submit"/>
     </form>
 
-    <p>
+    <p/>
 
     <pre><playground:warnings/></pre>
     <hr>
