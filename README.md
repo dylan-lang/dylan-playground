@@ -12,10 +12,12 @@ web browser.
 * Build with `dylan-compiler -build web-playground`
 * I use authbind to allow non-privileged access to ports 80 and 443:
 
-    sudo touch /etc/authbind/byport/80
-    sudo touch /etc/authbind/byport/443
-    sudo chmod 777 /etc/authbind/byport/80
-    sudo chmod 777 /etc/authbind/byport/443
+  ```shell
+  sudo touch /etc/authbind/byport/80
+  sudo touch /etc/authbind/byport/443
+  sudo chmod 777 /etc/authbind/byport/80
+  sudo chmod 777 /etc/authbind/byport/443
+  ```
 
 ## Deployment
 
