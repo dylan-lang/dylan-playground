@@ -129,8 +129,20 @@ define method decimal-to-roman (num)
 end method;
 
 decimal-to-roman(1234)
-|));
+|),
+           vector("Macros", #:string:|
+// Macros define new syntax. For example, let's say you find "if (test) this
+// else that end" a bit wordy for otherwise short conditionals. This macro
+// defines iff(test, this, that) as an alternative syntax.
+define macro iff
+    { iff(?test:expression, ?true:expression, ?false:expression) } // pattern
+ => { if (?test) ?true else ?false end } // generated code
+end;
 
+// Note that only the first argument is evaluated, unlike if you defined a
+// function for "iff".
+iff(#t, format-out("true"), format-out("false"))
+|));  // end define constant $examples
 
 define function find-example (name)
   let k = find-key($examples, method (v) v.first = name end);
