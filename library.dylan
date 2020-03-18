@@ -31,6 +31,7 @@ define module web-playground
     import: { get-attribute, quote-html, set-attribute, set-header };
   use http-server,
     import: { <http-server>,
+              <resource>,
               add-resource,
               current-request,
               current-response,
@@ -43,6 +44,7 @@ define module web-playground
               page-context,
               process-config-element,
               quote-html,
+              respond-to-get,
               respond-to-post,
               server-root };
   use locators,

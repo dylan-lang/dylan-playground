@@ -109,6 +109,8 @@ define taglib playground ()
       let name = v[0];
       output("<option value=\"%s\">%s</option>\n", name, name);
     end;
+  tag example (page :: <playground-page>) (name :: <string> = $hello-world)
+    output(find-example-code(name) | "example not found");
 end;
 
 define method respond-to-post (page :: <playground-page>, #key) => ()
@@ -338,6 +340,24 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
   join(keep, "\n")
 end function;
 
+// A resource for retrieving individual examples.
+define class <example-page> (<resource>) end;
+
+define method respond-to-get (page :: <example-page>, #key name) => ()
+  let stream = current-response();
+  set-header(stream, "Content-type", "text/plain");
+  if (name)
+    let code = find-example-code(name);
+    if (code)
+      write(stream, code);
+    else
+      format(stream, "example %= not found", name);
+    end;
+  else
+    write(stream, "name parameter not found");
+  end;
+end method;
+
 define function main ()
   local method before-startup (server :: <http-server>)
           let source = merge-locators(as(<file-locator>, "playground.dsp"),
@@ -345,8 +365,10 @@ define function main ()
           log-debug("source = %s", source);
           let page = make(<playground-page>, source: source);
           add-resource(server, "/", page);
+          add-resource(server, "/example/{name}", make(<example-page>));
         end;
-  http-server-main(server: make(<http-server>), before-startup: before-startup);
+  http-server-main(server: make(<http-server>),
+                   before-startup: before-startup);
 end function;
 
 main();
