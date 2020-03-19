@@ -7,7 +7,7 @@
 
     <style>
       body {
-          font: Ariel, Helvetica, sans-serif;
+          font-family: Ariel, Helvetica, sans-serif;
       }
       .editor-row {
           display: flex;
@@ -52,6 +52,21 @@
               but.textContent = "Show module definition";
           }
       }
+      function selectExample() {
+          var main_code = document.getElementById("main-code");
+          var example = document.getElementById("examples-menu").value;
+          var request = new XMLHttpRequest();
+          request.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                  main_code.value = this.responseText;
+              } else {
+                  main_code.value = "Error " + this.status + " getting the "
+                      + example + " example.";
+              }
+          };
+          request.open("GET", "/example/" + example, true);
+          request.send();
+      }
     </script>
 
     <form action="/"
@@ -60,25 +75,31 @@
 
       <div class="editor-row">
         <div>
+          <!-- TODO: Why is the font tiny if I omit font-size: 100% here? Seems
+               to inherit from "system-ui". -->
           <textarea autofocus
-                    style="background-color: #f5e8c4"
-                    name="main-code"
+                    id="main-code"
+                    style="font-family: monospace; font-size: 100%; background-color: #f5e8c4;"
                     value=""
-                    rows="20"
+                    rows="25"
                     cols="90"><playground:main-code/></textarea>
         </div>
         <div class="examples-and-docs">
           <div>
             <label for="examples-menu">Choose an example:</label><br>
-            <select id="examples-menu">
+            <select id="examples-menu"
+                    onchange="selectExample()">
               <playground:examples-menu/>
             </select>
           </div>
-          <div style="display: flex; flex-direction: column; padding-bottom: 10px">
+          <div style="display: flex; flex-direction: column; padding-bottom: 10px;">
             <div>Need help?</div>
             <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
             <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
             <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
+          </div>
+          <div style="padding-top: 20px;">
+            <a href="https://github.com/cgay/web-playground/issues">Report a bug</a>
           </div>
         </div>
       </div>
