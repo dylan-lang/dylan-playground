@@ -8,21 +8,48 @@
     <style>
       body {
           font-family: Ariel, Helvetica, sans-serif;
+          background-color: #f7f1dc;
+      }
+      .top-column {
+          display: flex;
+          flex-direction: column;
+          padding-left: 20px;
+          padding-right: 20px;
+      }
+      .editor {
+          display: block;
+          flex-grow: 8;
+          padding-right: 20px;
+      }
+      textarea {
+          font-family: monospace;
+          font-size: 100%; /* not sure why this is necessary */
+          width: 100%;
       }
       .editor-row {
           display: flex;
+          flex-direction: row;
       }
-      .editor-row > div {
-          background-color: #f1f1f1;
-          padding: 20px;
-      }
-      .examples-and-docs {
+      .examples-column {
           display: flex;
           flex-direction: column;
           justify-content: center;
+          flex-grow: 2;
       }
-      .examples-and-docs > div {
+      .examples-column > div {
           padding-bottom: 40px;
+      }
+      button#run-button {
+          background-color: #4caf50;
+          border-radius: 4px;
+          font-size: large;
+          padding: 8px 16px;
+      }
+      button#module-button {
+          background-color: #4caf50;
+          border-radius: 4px;
+          margin-bottom: 4px;
+          padding: 4px 8px;
       }
     </style>
     <script>
@@ -80,51 +107,45 @@
   <body>
 
     <header>
-      <h2>Dylan Playground (a work in progress!)</h2>
+      <center><h2>Dylan Playground</h2></center>
     </header>
 
-    <div class="button-row">
-      <button id="module-button" onClick="toggleShowModule()">Hide module definition</button>
-      <button id="run-button" onClick="buildAndRunCode()">Run</button>
-    </div>
-    <div id="module-definition">
-      Your code is compiled using the following library/module definition:
-      <code>
-        <pre><playground:library-code/></pre>
-      </code>
-    </div>
-
-    <div class="editor-row">
+    <div class="top-column">
       <div>
-        <!-- TODO: Why is the font tiny if I omit font-size: 100% here? Seems
-             to inherit from "system-ui". -->
-        <textarea autofocus
-                  id="main-code"
-                  style="font-family: monospace; font-size: 100%; background-color: #f5e8c4;"
-                  value=""
-                  rows="25"
-                  cols="90"><playground:main-code/></textarea>
+        <button id="module-button" onClick="toggleShowModule()">Hide module definition</button>
       </div>
-      <div class="examples-and-docs">
-        <div>
-          <label for="examples-menu">Choose an example</label><br>
-          <select id="examples-menu"
-                  onchange="selectExample()">
-            <playground:examples-menu/>
-          </select>
-        </div>
-        <div style="display: flex; flex-direction: column; padding-bottom: 10px;">
-          <div>Need help?</div>
-          <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
-          <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
-          <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
-        </div>
-        <div style="padding-top: 20px;">
-          <a href="https://github.com/cgay/web-playground/issues">Report a bug</a>
-        </div>
+      <div id="module-definition">
+        Your code is compiled using the following library/module definition:
+        <code>
+          <pre><playground:library-code/></pre>
+        </code>
       </div>
-    </div>
-
+      <div class="editor-row">
+        <div class="editor">
+          <textarea autofocus id="main-code" rows="30"><playground:main-code/></textarea>
+        </div>
+        <div class="examples-column">
+          <div>
+            <button id="run-button" onClick="buildAndRunCode()">Run &gt;&gt;</button>
+          </div>
+          <div>
+            <label for="examples-menu">Choose an example</label>
+            <select id="examples-menu" onchange="selectExample()">
+              <playground:examples-menu/>
+            </select>
+          </div>
+          <div style="display: flex; flex-direction: column; padding-bottom: 10px;">
+            <div>Need help?</div>
+            <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
+            <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
+            <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
+          </div>
+          <div style="padding-top: 20px; font-size: small;">
+            <a href="https://github.com/cgay/web-playground/issues">Report a bug</a>
+          </div>
+        </div> <!-- examples-column -->
+      </div> <!-- editor-row -->
+    </div> <!-- top-column -->
     <p/>
 
     <pre id="warnings"></pre>
