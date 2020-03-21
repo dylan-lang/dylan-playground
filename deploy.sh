@@ -21,6 +21,7 @@ mkdir -p "${target_dir}"
 
 # Copy static assets
 cp $d/playground.dsp "${target_dir}/"
+cp -r $d/static "${target_dir}/"
 
 # Copy current binaries so we're not subject to dev rebuilds.
 cp -r $d/../_build/bin "${target_dir}/"

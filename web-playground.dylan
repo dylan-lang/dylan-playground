@@ -373,6 +373,9 @@ define function main ()
           add-resource(server, "/",               make(<playground-page>, source: source));
           add-resource(server, "/example/{name}", make(<example-resource>));
           add-resource(server, "/run",            make(<build-and-run>));
+          add-resource(server, "/static",
+                       make(<directory-resource>,
+                            directory: subdirectory-locator(*play-root-dir*, "static")));
         end;
   http-server-main(server: make(<http-server>),
                    before-startup: before-startup);

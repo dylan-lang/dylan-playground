@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <%dsp:taglib name="playground"/>
+    <link rel="shortcut icon" href="/static/favicon.ico"/>
 
     <title>Dylan Playground</title>
 

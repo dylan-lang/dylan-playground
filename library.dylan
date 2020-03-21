@@ -32,6 +32,7 @@ define module web-playground
     import: { get-attribute, quote-html, request-content, set-attribute, set-header };
   use http-server,
     import: { <http-server>,
+              <directory-resource>,
               <resource>,
               add-resource,
               current-request,
