@@ -67,6 +67,7 @@ define module web-playground
     import: { decimal-digit?,
               ends-with?,
               find-substring,
+              replace-substrings,
               starts-with?,
               strip,
               strip-left,

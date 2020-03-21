@@ -315,7 +315,7 @@ define constant $blacklist-prefixes
       "Building targets"];
 
 // Remove blank lines, $blacklist-prefixes, and entire warnings that are in the
-// dylan library.
+// dylan library. Also elide parts of pathnames.
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
 /* Example warning:
 /.../sources/dylan/collection.dylan:346.1-349.31: Warning - blah blah
@@ -340,7 +340,12 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
       add!(keep, line);
     end;
   end for;
-  join(keep, "\n")
+  let dir-prefix = as(<string>, *play-root-dir*);
+  join(map(method (line)
+             replace-substrings(line, dir-prefix, "...")
+           end,
+           keep),
+       "\n")
 end function;
 
 // A resource for retrieving individual examples.
