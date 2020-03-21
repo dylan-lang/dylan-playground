@@ -88,6 +88,7 @@ define constant $exe-output-attr = "exe-output";
 define constant $debug-output-attr = "debug-output";
 
 define taglib playground ()
+  // TODO: do this via onload() in js
   tag main-code (page :: <playground-page>) ()
     output("%s", get-query-value($main-code-attr) | find-example-code($hello-world));
   tag library-code (page :: <playground-page>) ()
@@ -95,15 +96,6 @@ define taglib playground ()
       let name = generate-project-name();
       output($library-file-template, name, name);
     end;
-  tag warnings (page :: <playground-page>) ()
-    quote-html(get-attribute(page-context(), $warnings-attr) | "",
-               stream: current-response());
-  tag exe-output (page :: <playground-page>) ()
-    quote-html(get-attribute(page-context(), $exe-output-attr) | "",
-               stream: current-response());
-  tag debug-output (page :: <playground-page>) ()
-    quote-html(get-attribute(page-context(), $debug-output-attr) | "",
-               stream: current-response());
   tag examples-menu (page :: <playground-page>) ()
     for (v in $examples)
       let name = v[0];
@@ -113,11 +105,20 @@ define taglib playground ()
     output(find-example-code(name) | "example not found");
 end;
 
-define method respond-to-post (page :: <playground-page>, #key) => ()
-  // Seems like text/html should be the default...
-  set-header(current-response(), "Content-Type", "text/html");
+define class <build-and-run> (<resource>) end;
+
+define method respond-to-post (resource :: <build-and-run>, #key) => ()
+  set-header(current-response(), "Content-Type", "application/json");
+
+  // debug
+  do-query-values(method (key, val)
+                    log-debug("key = %s, val = %s", key, val);
+                  end);
+
+  let result = make(<string-table>);
   let main-code = get-query-value($main-code-attr);
-  let ctx = page-context();
+  log-debug("bbb main-code = %=", main-code);
+  log-debug("bbb request-content = %=", request-content(current-request()));
   if (main-code & main-code ~= "")
     log-debug("program code: %s", main-code);
     block ()
@@ -125,16 +126,16 @@ define method respond-to-post (page :: <playground-page>, #key) => ()
       let (warnings, exe-output) = build-and-run-code(project-name, main-code);
       log-debug("warnings = %=", warnings);
       log-debug("exe-output = %s", exe-output);
-      set-attribute(ctx, $warnings-attr, warnings);
-      set-attribute(ctx, $exe-output-attr, exe-output);
+      result[$warnings-attr] := warnings;
+      result[$exe-output-attr] := exe-output;
     exception (ex :: <error>)
-      set-attribute(ctx, $debug-output-attr, format-to-string("Error: %s", ex));
+      result[$debug-output-attr] := format-to-string("Error: %s", ex);
     end;
   else
-    set-attribute(ctx, $warnings-attr, "Please enter some code above.");
+    result[$warnings-attr] := "Please enter some code.";
   end;
-  process-template(page);
-end;
+  encode-json(current-response(), result);
+end method;
 
 define function generate-project-name () => (project-name :: <string>)
   concatenate("play-", short-session-id())
@@ -341,9 +342,9 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
 end function;
 
 // A resource for retrieving individual examples.
-define class <example-page> (<resource>) end;
+define class <example-resource> (<resource>) end;
 
-define method respond-to-get (page :: <example-page>, #key name) => ()
+define method respond-to-get (page :: <example-resource>, #key name) => ()
   let stream = current-response();
   set-header(stream, "Content-type", "text/plain");
   if (name)
@@ -362,10 +363,9 @@ define function main ()
   local method before-startup (server :: <http-server>)
           let source = merge-locators(as(<file-locator>, "playground.dsp"),
                                       *template-directory*);
-          log-debug("source = %s", source);
-          let page = make(<playground-page>, source: source);
-          add-resource(server, "/", page);
-          add-resource(server, "/example/{name}", make(<example-page>));
+          add-resource(server, "/",               make(<playground-page>, source: source));
+          add-resource(server, "/example/{name}", make(<example-resource>));
+          add-resource(server, "/run",            make(<build-and-run>));
         end;
   http-server-main(server: make(<http-server>),
                    before-startup: before-startup);

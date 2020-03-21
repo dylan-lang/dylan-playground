@@ -8,6 +8,7 @@ define library web-playground
   use http-server;
   use io,
     import: { format, format-out, streams };
+  use json;
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
@@ -28,13 +29,14 @@ define module web-playground
   use hash-algorithms,
     import: { hexdigest, md5 };
   use http-common,
-    import: { get-attribute, quote-html, set-attribute, set-header };
+    import: { get-attribute, quote-html, request-content, set-attribute, set-header };
   use http-server,
     import: { <http-server>,
               <resource>,
               add-resource,
               current-request,
               current-response,
+              do-query-values,
               get-attr,
               get-query-value,
               get-session,
@@ -47,6 +49,8 @@ define module web-playground
               respond-to-get,
               respond-to-post,
               server-root };
+  use json,
+    import: { encode-json };
   use locators,
     import: { <directory-locator>,
               <file-locator>,
@@ -65,6 +69,7 @@ define module web-playground
               find-substring,
               starts-with?,
               strip,
+              strip-left,
               strip-right,
               whitespace? };
   use xml-parser,

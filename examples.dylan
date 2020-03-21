@@ -19,13 +19,19 @@ format-out("Hello %s\n", "World")
 
 
            vector("Factorial (recursive)", #:string:|
+// A recursive version of factorial using singleton method dispatch.
 define method factorial (n == 0) 1 end;  // called when n = 0
 define method factorial (n == 1) 1 end;  // called when n = 1
 define method factorial (n)              // called for any other n
   n * factorial(n - 1)
 end;
 
-format-out("%d", factorial(10))
+format-out("%d", factorial(10));
+
+// Things to try:
+// * Rewrite the code so it uses a single method instead of three. Which do you prefer?
+// * Uncomment this line and fix the resulting errors:
+//   define generic factorial (n :: <integer>) => (n :: <integer>);
 |),
 
            vector("Factorial (iterative)", #:string:|
@@ -39,7 +45,7 @@ define function factorial (n :: <integer>) => (factorial :: <integer>)
   end
 end function;
 
-format-out("%d", factorial(10))
+format-out("%d", factorial(10));
 |),
 
            vector("for loop", #:string:|
@@ -48,6 +54,9 @@ for (i from 1,
      until: c = 'e')
   format-out("%d: %s\n", i, c);
 end;
+
+// Things to try:
+// * Write the same loop with the iterate macro. Use Library Docs index ->
 |),
 
            vector("Classes", #:string:|
@@ -67,6 +76,9 @@ format-out("Name: %s\nAge: %d\n", p.person-name, p.person-age);
 
 p.person-age := 24;
 format-out("Name: %s\nAge: %d\n", p.person-name, p.person-age);
+
+// Things to try:
+// * Use multiple inheritance to implement age via an <aged-thing> abstract class.
 |),
 
            vector("Error handling", #:string:|
@@ -74,7 +86,13 @@ block ()
   format-out("%=", floof)
 exception (err :: <error>)
   format-out("error: %s", err)
-end
+end;
+
+// Things to notice/try:
+// * The Dylan compiler produces a functioning executable despite serious errors.
+//   This is so that you can do interactive development without adding stubs for
+//   unfinished code. (Of course running the unfinished code causes an error.)
+// * Replace "floof" with other kinds of run-time errors.
 |),
 
            vector("Show type hierarchy", #:string:|
@@ -100,9 +118,11 @@ define function show-type-hierarchy (class :: <class>)
   end iterate;
 end function;
 
-// Now call it to show the collection hierarchy.
-// Try changing <collection> to <number>, <object>, or object-class(42)
-show-type-hierarchy(<collection>)
+show-type-hierarchy(<collection>);
+
+// Things to try:
+// * Change <collection> to <number>, <object>, or object-class(42).
+// * Make show-type-hierarchy(42) work. I.e., passing an integer or string.
 |),
 
            // TODO: this code could be improved!
@@ -128,7 +148,7 @@ define method decimal-to-roman (num)
   end while;
 end method;
 
-decimal-to-roman(1234)
+decimal-to-roman(1234);
 |),
            vector("Macros", #:string:|
 // Macros define new syntax. For example, let's say you find "if (test) this
@@ -139,9 +159,12 @@ define macro iff
  => { if (?test) ?true else ?false end } // generated code
 end;
 
-// Note that only the first argument is evaluated, unlike if you defined a
-// function for "iff".
-iff(#t, format-out("true"), format-out("false"))
+iff(#t, format-out("true"), format-out("false"));
+
+// Things to notice/try:
+// * Only the first argument is evaluated, unlike if you defined "iff" as a function.
+// * Make it work without an ELSE part: iff(#t, this)
+//   Hint: duplicate the pattern and generated code lines and then modify them.
 |));  // end define constant $examples
 
 define function find-example (name)
@@ -151,5 +174,5 @@ end;
 
 define function find-example-code (name)
   let v = find-example(name);
-  v & v[1]
+  v & strip-left(v[1])
 end;
