@@ -241,15 +241,17 @@ define constant $lid-file-template
 define constant $library-file-template = #:string:|Module: dylan-user
 
 define library %s
-  use common-dylan, import: { common-dylan };
-  use io,           import: { format-out };
-  use system,       import: { date };
+  use common-dylan, import: { byte-vector, common-dylan, simple-random };
+  use io, import: { format, format-out, streams };
+  use strings;
+  use system;
 end library;
 
 define module %s
-  use common-dylan;
+  use byte-vector;  use common-dylan;  use simple-random;
   use date;
-  use format-out;
+  use format;  use format-out;  use streams;
+  use strings;
 end module;
 |;
 
