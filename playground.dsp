@@ -59,10 +59,10 @@
           var but = document.getElementById("module-button");
           if (mod.style.display === "none") {
               mod.style.display = "block";
-              but.textContent = "Hide module definition";
+              but.textContent = "Hide Imports";
           } else {
               mod.style.display = "none";
-              but.textContent = "Show module definition";
+              but.textContent = "Show Imports";
           }
       }
       function selectExample() {
@@ -113,17 +113,17 @@
 
     <div class="top-column">
       <div>
-        <button id="module-button" onClick="toggleShowModule()">Hide module definition</button>
+        <button id="module-button" onClick="toggleShowModule()">Show Imports</button>
       </div>
-      <div id="module-definition">
-        Your code is compiled using the following library/module definition:
+      <div id="module-definition" style="display: none">
+        Your code is compiled in this module. (In the future the module will be editable.)
         <code>
           <pre><playground:library-code/></pre>
         </code>
       </div>
       <div class="editor-row">
         <div class="editor">
-          <textarea autofocus id="main-code" rows="30"><playground:main-code/></textarea>
+          <textarea autofocus id="main-code" rows="20"><playground:main-code/></textarea>
         </div>
         <div class="examples-column">
           <div>
@@ -142,7 +142,7 @@
             <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
           </div>
           <div style="padding-top: 20px; font-size: small;">
-            <a href="https://github.com/cgay/web-playground/issues">Report a bug</a>
+            <a href="https://github.com/cgay/web-playground/issues" target="_blank">Report a bug</a>
           </div>
         </div> <!-- examples-column -->
       </div> <!-- editor-row -->
