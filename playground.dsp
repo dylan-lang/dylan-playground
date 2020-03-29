@@ -88,8 +88,6 @@
               if (table["warnings"]) {
                   var w = document.getElementById("warnings");
                   w.innerText = table["warnings"];
-              } else {
-                  alert("no warnings");
               }
               if (table["exe-output"]) {
                   var out = document.getElementById("exe-output");
