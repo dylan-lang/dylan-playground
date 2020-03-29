@@ -95,20 +95,16 @@ end;
 // * Replace "floof" with other kinds of run-time errors.
 |),
 
-           vector("Show type hierarchy", #:string:|
-// This displays the type hierarchy of a class via indentation
-// while avoiding repetition due to multiple inheritance.        
-define function show-type-hierarchy (class :: <class>)
+           vector("Show subclasses", #:string:{
+// This displays a class's subclasses via indentation
+// while avoiding repetition due to multiple inheritance.
+define function show-all-subclasses (class :: <class>)
   let seen = make(<stretchy-vector>);
   iterate loop (class = class, indent = "")
     let seen? = member?(class, seen);
     let subclasses = direct-subclasses(class);
-    let extra = if (seen? & ~empty?(subclasses))
-                  "  // (see above)"
-                else
-                  ""
-                end;
-    format-out("%s%s%s\n", indent, class, extra);
+    let extra = seen? & ~empty?(subclasses) & " (see above)";
+    format-out("%s%s%s\n", indent, class, extra | "");
     if (~seen?)
       add!(seen, class);
       for (subclass in subclasses)
@@ -118,12 +114,12 @@ define function show-type-hierarchy (class :: <class>)
   end iterate;
 end function;
 
-show-type-hierarchy(<collection>);
+show-all-subclasses(<collection>);
 
 // Things to try:
 // * Change <collection> to <number>, <object>, or object-class(42).
 // * Make show-type-hierarchy(42) work. I.e., passing an integer or string.
-|),
+}),
 
            // TODO: this code could be improved!
            vector("Roman numerals", #:string:|
