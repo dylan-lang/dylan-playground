@@ -76,7 +76,7 @@
           request.send();
       }
       function buildAndRunCode() {
-          document.getElementById("warnings").innerText = "";
+          document.getElementById("compiler-output").innerText = "";
           document.getElementById("exe-output").innerText = "";
 
           var main_code = document.getElementById("main-code");
@@ -85,9 +85,9 @@
           var request = new XMLHttpRequest();
           request.addEventListener("load", function (event) {
               var table = JSON.parse(event.target.responseText);
-              if (table["warnings"]) {
-                  var w = document.getElementById("warnings");
-                  w.innerText = table["warnings"];
+              if (table["compiler-output"]) {
+                  var w = document.getElementById("compiler-output");
+                  w.innerText = table["compiler-output"];
               }
               if (table["exe-output"]) {
                   var out = document.getElementById("exe-output");
@@ -147,7 +147,7 @@
     </div> <!-- top-column -->
     <p/>
 
-    <pre id="warnings"></pre>
+    <pre id="compiler-output"></pre>
     <hr>
     <pre id="exe-output"></pre>
 

@@ -83,7 +83,7 @@ define class <playground-page> (<dylan-server-page>)
 end;
 
 define constant $main-code-attr = "main-code";
-define constant $warnings-attr = "warnings";
+define constant $compiler-output-attr = "compiler-output";
 define constant $exe-output-attr = "exe-output";
 define constant $debug-output-attr = "debug-output";
 
@@ -123,16 +123,16 @@ define method respond-to-post (resource :: <build-and-run>, #key) => ()
     log-debug("program code: %s", main-code);
     block ()
       let project-name = generate-project-name();
-      let (warnings, exe-output) = build-and-run-code(project-name, main-code);
-      log-debug("warnings = %=", warnings);
+      let (compiler-output, exe-output) = build-and-run-code(project-name, main-code);
+      log-debug("compiler-output = %=", compiler-output);
       log-debug("exe-output = %s", exe-output);
-      result[$warnings-attr] := warnings;
+      result[$compiler-output-attr] := compiler-output;
       result[$exe-output-attr] := exe-output;
     exception (ex :: <error>)
       result[$debug-output-attr] := format-to-string("Error: %s", ex);
     end;
   else
-    result[$warnings-attr] := "Please enter some code.";
+    result[$compiler-output-attr] := "Please enter some code.";
   end;
   encode-json(current-response(), result);
 end method;
@@ -155,14 +155,14 @@ end function;
 
 define function build-and-run-code
     (project-name :: <string>, main-code :: <string>)
- => (warnings :: <string>, exe-output :: <string>)
+ => (compiler-output :: <string>, exe-output :: <string>)
   let project-dir = ensure-project-directory(project-name);
   let lid-path = generate-project-files(project-name, project-dir, main-code);
-  let (exe-path, warnings) = build-project(project-name, project-dir, lid-path);
+  let (exe-path, compiler-output) = build-project(project-name, project-dir, lid-path);
   if (exe-path)
-    values(warnings, run-executable(*play-root-dir*, exe-path))
+    values(compiler-output, run-executable(*play-root-dir*, exe-path))
   else
-    values(warnings, "No executable was created")
+    values(compiler-output, "No executable was created")
   end
 end function;
 
@@ -264,7 +264,7 @@ define constant $code-file-template = "module: %s\n\n%s\n";
 // The dylan-compiler -assemble flag only works for HARP.
 define function build-project
     (project-name :: <string>, project-dir :: <directory-locator>, lid-path :: <file-locator>)
- => (exe :: false-or(<file-locator>), warnings :: <string>)
+ => (exe :: false-or(<file-locator>), compiler-output :: <string>)
   let command = format-to-string("%s -build -dfm %s",
                                  as(<string>, *dylan-compiler-location*), lid-path);
   let timing-info = "";
@@ -287,11 +287,11 @@ define function build-project
   let exe-path = merge-locators(as(<file-locator>,
                                    format-to-string("./_build/bin/%s", project-name)),
                                 *play-root-dir*);
-  let warnings = concatenate(sanitize-build-output(build-output), "\n", timing-info);
+  let compiler-output = concatenate(sanitize-build-output(build-output), "\n", timing-info);
   if (fs/file-exists?(exe-path))
-    values(exe-path, warnings)
+    values(exe-path, compiler-output)
   else
-    values(#f, warnings)
+    values(#f, compiler-output)
   end
 end function;
 
