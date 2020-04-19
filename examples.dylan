@@ -155,12 +155,15 @@ define macro iff
  => { if (?test) ?true else ?false end } // generated code
 end;
 
-iff(#t, format-out("true"), format-out("false"));
+let x = 0;
+iff(even?(x), x := 2, x := 4);
+format-out("x = %d\n", x);
 
 // Things to notice/try:
 // * Only the first argument is evaluated, unlike if you defined "iff" as a function.
 // * Make it work without an ELSE part: iff(#t, this)
 //   Hint: duplicate the pattern and generated code lines and then modify them.
+// * Do not overuse macros! e.g., never use them for optimizations like inlining.
 |));  // end define constant $examples
 
 define function find-example (name)
