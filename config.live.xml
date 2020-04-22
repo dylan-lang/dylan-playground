@@ -29,11 +29,12 @@
       additive="no"
       max-size="20000000" />
 
-  <!-- The directories are relative to server-root. Use 2019.1 compiler so that it's stable. -->
+  <!-- The directories are relative to server-root. Use snapshot of compiler so
+       that it's stable. -->
   <dylan-web-playground
       root-directory="/home/cgay/dylan/workspaces/playground/live"
       template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
-      dylan-compiler="/home/cgay/dylan/opendylan-2019.1/bin/dylan-compiler"
+      dylan-compiler="/home/cgay/dylan/opendylan-master-2020-04-19/bin/dylan-compiler"
       />
 
 </http-server>
