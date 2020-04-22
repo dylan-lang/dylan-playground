@@ -71,11 +71,11 @@ end;
 let p = make(<person>, name: "Dylan");
 format-out("Name: %s\nAge: %d\n", p.name, p.age);
 
-let p = make(<person>, name: "Thomas", age: 23);
-format-out("Name: %s\nAge: %d\n", p.person-name, p.person-age);
+p := make(<person>, name: "Thomas", age: 23);
+format-out("Name: %s\nAge: %d\n", p.name, p.age);
 
-p.person-age := 24;
-format-out("Name: %s\nAge: %d\n", p.person-name, p.person-age);
+p.age := 24;
+format-out("Name: %s\nAge: %d\n", p.name, p.age);
 
 // Things to try:
 // * Use multiple inheritance to implement age via an <aged-thing> abstract class.
