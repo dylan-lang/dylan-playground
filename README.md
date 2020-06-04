@@ -60,6 +60,9 @@ up.
   $ certbot certonly --nginx
   ```
 
+  (To renew the certificate, every 90 days, stop the playground web server and
+  run `certbot renew --standalone`.)
+
 * Create new nginx config and restart nginx:
   ```
   listen 443 ssl;
