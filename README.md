@@ -26,9 +26,6 @@ I run the dev instance out of my "playground" workspace directory with
 
 To deploy "live":
 
-* Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
-  Dylan to the "live" directory.
-
 * Modify `live/config.live.xml` to have absolute paths:
 
   ```xml
@@ -39,7 +36,13 @@ To deploy "live":
       />
   ```
 
-* Start the server with authbind if running it on port 80:
+* Stop the current web-playground process so the executable file can be
+  replaced.
+
+* Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
+  Dylan to the "live" directory.
+
+* Start the server with authbind if running it on a privileged port:
 
   ```shell
   cd live
