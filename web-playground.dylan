@@ -244,14 +244,14 @@ define library %s
   use common-dylan, import: { byte-vector, common-dylan, simple-random };
   use io, import: { format, format-out, streams };
   use strings;
-  use system;
+  use system, import: { date, locators };
 end library;
 
 define module %s
-  use byte-vector;  use common-dylan;  use simple-random;
-  use date;
-  use format;  use format-out;  use streams;
-  use strings;
+  use byte-vector;  use common-dylan;  use simple-random; // from common-dylan
+  use date;  use locators;                                // from system
+  use format;  use format-out;  use streams;              // from io
+  use strings;                                            // from strings
 end module;
 |;
 
