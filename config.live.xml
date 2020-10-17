@@ -34,7 +34,7 @@
   <dylan-web-playground
       root-directory="/home/cgay/dylan/workspaces/playground/live"
       template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
-      dylan-compiler="/home/cgay/dylan/opendylan-playground"
+      dylan-compiler="/home/cgay/dylan/opendylan-playground/bin/dylan-compiler"
       />
 
 </http-server>

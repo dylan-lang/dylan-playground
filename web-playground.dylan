@@ -241,17 +241,41 @@ define constant $lid-file-template
 define constant $library-file-template = #:string:|Module: dylan-user
 
 define library %s
-  use common-dylan, import: { byte-vector, common-dylan, simple-random };
-  use io, import: { format, format-out, streams };
+  use common-dylan,
+    import: {
+      byte-vector, common-dylan, simple-random, simple-timers,
+      simple-profiling, transcendentals
+    };
+  use hash-algorithms;
+  use io,
+    import: { format, format-out, print, pprint, streams };
+  use logging;
+  use regular-expressions;
   use strings;
   use system, import: { date, locators };
 end library;
 
 define module %s
-  use byte-vector;  use common-dylan;  use simple-random; // from common-dylan
-  use date;  use locators;                                // from system
-  use format;  use format-out;  use streams;              // from io
-  use strings;                                            // from strings
+  // from common-dylan
+  use byte-vector;
+  use common-dylan;
+  use simple-random;
+  use simple-timers;
+  use simple-profiling;
+  use transcendentals;
+  // from system
+  use date;
+  // from io
+  use format;
+  use format-out;
+  use print;
+  use pprint;
+  use streams;
+  // from libraries with only one exported module
+  use hash-algorithms;
+  use logging;
+  use regular-expressions;
+  use strings;
 end module;
 |;
 
@@ -376,6 +400,13 @@ define function main ()
           add-resource(server, "/static",
                        make(<directory-resource>,
                             directory: subdirectory-locator(*play-root-dir*, "static")));
+          // temp, for testing server connection closing problem
+          add-resource(server, "/error",
+                       make(<function-resource>,
+                            function: method (#rest args)
+                                        error("my dog has fleas")
+                                      end,
+                            methods: list($http-get-method)));
         end;
   http-server-main(server: make(<http-server>),
                    before-startup: before-startup);

@@ -14,7 +14,15 @@ class PlaygroundUser(HttpUser):
 
     @task
     def index_page(self):
-        self.client.get("/")
+        self.client.get('/')
+
+    @task
+    def error(self):
+        self.client.get('/error')
+
+    @task
+    def compile(self):
+        self.client.post('/run', data={'main-code': 'format-out("test")'})
 
     # @task(3)
     # def view_item(self):

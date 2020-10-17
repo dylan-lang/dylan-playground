@@ -5,7 +5,7 @@
 <http-server>
 
   <server server-root="/home/cgay/dylan/workspaces/playground/dev"
-          debug="yes"
+          debug="no"
           use-default-virtual-host="yes"
           />
 
@@ -17,6 +17,7 @@
   <debug-log
       name="http.server"
       level="trace"
+      location="server.log"
       />
 
   <error-log
