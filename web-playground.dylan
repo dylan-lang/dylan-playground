@@ -289,7 +289,10 @@ define constant $code-file-template = "module: %s\n\n%s\n";
 define function build-project
     (project-name :: <string>, project-dir :: <directory-locator>, lid-path :: <file-locator>)
  => (exe :: false-or(<file-locator>), compiler-output :: <string>)
-  let command = format-to-string("%s -build -dfm %s",
+  // NOTE: If -dfm is added to this command it dies outputting DFM for the
+  // regular-expressions library, so either that has to be fixed or
+  // regular-expressions needs to be removed from $library-file-template.
+  let command = format-to-string("%s -build %s",
                                  as(<string>, *dylan-compiler-location*), lid-path);
   let timing-info = "";
   let build-output
