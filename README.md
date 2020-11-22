@@ -63,8 +63,9 @@ up.
   $ certbot certonly --nginx
   ```
 
-  (To renew the certificate, every 90 days, stop the playground web server and
-  run `certbot renew --standalone`.)
+  The cert should be renewed automatically due to a systemctl timer. See
+  `systemctl list-timers`.  To renew the certificate manually, stop the
+  playground web server and run `certbot renew --standalone`.
 
 * Create new nginx config and restart nginx:
   ```
