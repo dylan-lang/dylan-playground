@@ -1,36 +1,7 @@
 Module: web-playground
 Synopsis: Web app backing play.opendylan.org
 
-/*
-TODO
-
-* The TODOs in the code below are the more urgent ones. These are longer term
-  reminders.
-
-* Don't run the previously built exe if the current build fails. 
-
-* Prevent maliciousness or accidents like `while (#t) format-out("blah") end`
-  and `while (#t) end`.
-
-* Permalinks for sharing examples.
-
-* Provide a bunch of code examples to select from and then modify.
-
-* Allow the user to create their own library and module definition rather than
-  using the canned ones. Probably just search for "define library" and "define
-  module" and omit the canned ones if present. Need to ensure they don't use
-  file-system, network, operating-system. Others?
-
-* For now I compile all code in the same _build directory. Is this safe if
-  multiple compilations are running at the same time? At least I think the file
-  sets are disjoint as long as none of the used libraries need to be
-  recompiled.  Could instead copy a _build dir that has core libs precompiled.
-
-* Optionally show DFM and/or assembly output.
-
-* Make it pretty.
-
-*/
+// Bug list: https://github.com/cgay/web-playground/issues
 
 // Root of the playground. Directory where user project subdirectories live and
 // directory in which to run dylan-compiler, i.e. where the shared _build
@@ -48,6 +19,7 @@ define sideways method process-config-element
                                server.server-root);
 
   // TODO: simplify-locator doesn't do what I expected, i.e., remove ../
+  // (Can use resolve-locator now.)
   *play-root-dir* := simplify-locator(playdir);
   log-debug("root-directory is %s", *play-root-dir*);
 
