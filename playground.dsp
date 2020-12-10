@@ -61,6 +61,10 @@
       }
     </style>
     <script>
+      function handleError (event) {
+          /* TODO: How do we get the Status from the event? */
+          alert("Error contacting server");
+      }
       function toggleShowModule() {
           var mod = document.getElementById("module-definition");
           var but = document.getElementById("module-button");
@@ -101,9 +105,7 @@
                   out.innerText = table["exe-output"];
               }
           });
-          request.addEventListener("error", function (event) {
-              alert(event);
-          });
+          request.addEventListener("error", handleError);
           request.open("POST", "/run", true);
           request.send(fdata);
       }
@@ -122,9 +124,7 @@
                   textarea.select();
               }
           });
-          request.addEventListener("error", function (event) {
-              alert(event);
-          });
+          request.addEventListener("error", handleError);
           request.open("POST", "/share", true);
           request.send(fdata);
       }
