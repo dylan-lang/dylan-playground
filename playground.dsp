@@ -29,6 +29,10 @@
           padding: 1px 10px;
           margin: 5px;
       }
+      .shared-url-box {
+          display: flex;
+          flex-direction: row;
+      }
       .editor {
           display: block;
           flex-grow: 8;
@@ -109,10 +113,13 @@
           fdata.append("main-code", main_code.value);
           var request = new XMLHttpRequest();
           request.addEventListener("load", function (event) {
-              alert(event.target.responseText);
               var table = JSON.parse(event.target.responseText);
               if (table["URL"]) {
-                  alert(table["URL"]); // temp
+                  var container = document.getElementById("shared-url-box");
+                  var textarea = document.getElementById("url");
+                  textarea.value = table["URL"];
+                  container.style.display = "block";
+                  textarea.select();
               }
           });
           request.addEventListener("error", function (event) {
@@ -121,14 +128,19 @@
           request.open("POST", "/share", true);
           request.send(fdata);
       }
+      function hideUrlBox() {
+          var box = document.getElementById("shared-url-box");
+          box.style.display = "none";
+      }
     </script>
   </head>
 
   <body>
 
     <div class="main-column">
+
       <div class="top-row">
-        <span style="font-size: large; margin: 5px;">Dylan Playground</span>
+        <span style="font-size: large; margin: 5px 5px 5px 1px;">Dylan Playground</span>
         <div>
           <button id="module-button" onClick="toggleShowModule()">Show Imports</button>
         </div>
@@ -145,6 +157,10 @@
         </div>
       </div> <!-- top-row -->
 
+      <div id="shared-url-box" style="display: none">
+        Shared as: <textarea id="url" rows="1" cols="100" readonly="true"></textarea>
+      </div>
+
       <div id="module-definition" style="display: none">
         Your code is compiled in this module. (In the future the module will be editable.)
         <code>
@@ -153,8 +169,9 @@
       </div>
 
       <div class="editor">
-        <textarea autofocus id="main-code" rows="20"><playground:main-code/></textarea>
+        <textarea autofocus id="main-code" rows="20" onkeydown="hideUrlBox()"><playground:main-code/></textarea>
       </div>
+
       <div class="links-row">
         <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
         <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
