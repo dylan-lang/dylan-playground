@@ -11,40 +11,49 @@
           font-family: Ariel, Helvetica, sans-serif;
           background-color: #f7f1dc;
       }
-      .top-column {
+      /* The entire page is contained in the main column. */
+      .main-column {
           display: flex;
           flex-direction: column;
           padding-left: 20px;
           padding-right: 20px;
+      }
+      /* The top row contains the title and most of the buttons. */
+      .top-row {
+          display: flex;
+          flex-direction: row;
+          margin: 0px 0px 10px 0px;
+      }
+      .examples-box {
+          font-size: large;
+          padding: 1px 10px;
+          margin: 5px;
       }
       .editor {
           display: block;
           flex-grow: 8;
           padding-right: 20px;
       }
+      .links-row {
+          display: flex;
+          flex-direction: row;
+          font-size: small;
+      }
+      a {
+          padding: 1px 30px 1px 1px;
+      }
       textarea {
           font-family: monospace;
           font-size: 100%; /* not sure why this is necessary */
           width: 100%;
       }
-      .editor-row {
-          display: flex;
-          flex-direction: row;
-      }
-      .examples-column {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          flex-grow: 2;
-      }
-      .examples-column > div {
-          padding-bottom: 40px;
-      }
       button {
-          background-color: #4caf50;
+          background-color: lightskyblue;
           border-radius: 4px;
+          border-width: 0;
           font-size: large;
-          padding: 8px 16px;
+          padding: 1px 10px;
+          margin: 5px;
       }
     </style>
     <script>
@@ -117,49 +126,43 @@
 
   <body>
 
-    <header>
-      <center><h2>Dylan Playground</h2></center>
-    </header>
+    <div class="main-column">
+      <div class="top-row">
+        <span style="font-size: large; margin: 5px;">Dylan Playground</span>
+        <div>
+          <button id="module-button" onClick="toggleShowModule()">Show Imports</button>
+        </div>
+        <div>
+          <button id="share-button" onClick="shareCode()">Share</button>
+        </div>
+        <div class="examples-box">
+          <select id="examples-menu" onchange="selectExample()">
+            <playground:examples-menu/>
+          </select>
+        </div>
+        <div>
+          <button id="run-button" onClick="buildAndRunCode()">Run &gt;&gt;</button>
+        </div>
+      </div> <!-- top-row -->
 
-    <div class="top-column">
-      <div>
-        <button id="module-button" onClick="toggleShowModule()">Show Imports</button>
-      </div>
       <div id="module-definition" style="display: none">
         Your code is compiled in this module. (In the future the module will be editable.)
         <code>
           <pre><playground:library-code/></pre>
         </code>
       </div>
-      <div class="editor-row">
-        <div class="editor">
-          <textarea autofocus id="main-code" rows="20"><playground:main-code/></textarea>
-        </div>
-        <div class="examples-column">
-          <div>
-            <button id="run-button" onClick="buildAndRunCode()">Run &gt;&gt;</button>
-          </div>
-          <div>
-            <button id="share-button" onClick="shareCode()">Share</button>
-          </div>
-          <div>
-            <label for="examples-menu">Choose an example</label>
-            <select id="examples-menu" onchange="selectExample()">
-              <playground:examples-menu/>
-            </select>
-          </div>
-          <div style="display: flex; flex-direction: column; padding-bottom: 10px;">
-            <div>Need help?</div>
-            <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
-            <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
-            <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
-          </div>
-          <div style="padding-top: 20px; font-size: small;">
-            <a href="https://github.com/cgay/web-playground/issues" target="_blank">Report a bug</a>
-          </div>
-        </div> <!-- examples-column -->
-      </div> <!-- editor-row -->
-    </div> <!-- top-column -->
+
+      <div class="editor">
+        <textarea autofocus id="main-code" rows="20"><playground:main-code/></textarea>
+      </div>
+      <div class="links-row">
+        <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
+        <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
+        <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
+        <a href="https://github.com/cgay/web-playground/issues" target="_blank">Report a bug</a>
+      </div> <!-- links-row -->
+
+    </div> <!-- main-column -->
     <p/>
 
     <pre id="compiler-output"></pre>
