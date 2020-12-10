@@ -27,7 +27,7 @@ define module web-playground
     import: { format, format-to-string };
   use format-out;
   use hash-algorithms,
-    import: { hexdigest, md5 };
+    import: { hexdigest, sha1 };
   use http-common,
     import: { get-attribute, quote-html, request-content, set-attribute, set-header };
   use http-server,
@@ -59,6 +59,7 @@ define module web-playground
     import: { <directory-locator>,
               <file-locator>,
               merge-locators,
+              resolve-locator,
               simplify-locator,
               subdirectory-locator };
   use operating-system,

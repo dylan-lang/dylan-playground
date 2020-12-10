@@ -12,26 +12,43 @@ define variable *template-directory* :: false-or(<directory-locator>) = #f;
 
 define variable *dylan-compiler-location* :: false-or(<file-locator>) = #f;
 
+define variable *shares-directory* :: false-or(<directory-locator>) = #f;
+
+define variable *base-url* :: <string> = "https://play.opendylan.org/";
+
+// HTTP server calls this when loading the config.
 define sideways method process-config-element
     (server :: <http-server>, node :: xml/<element>, name == #"dylan-web-playground")
   let playdir = merge-locators(as(<directory-locator>,
                                   get-attr(node, #"root-directory") | server.server-root),
                                server.server-root);
-
-  // TODO: simplify-locator doesn't do what I expected, i.e., remove ../
-  // (Can use resolve-locator now.)
-  *play-root-dir* := simplify-locator(playdir);
+  *play-root-dir* := resolve-locator(playdir);
   log-debug("root-directory is %s", *play-root-dir*);
 
-  let template-directory = get-attr(node, #"template-directory");
-  *template-directory*
-    := simplify-locator(if (template-directory)
-                          merge-locators(as(<directory-locator>, template-directory),
-                                         *play-root-dir*)
-                        else
-                          *play-root-dir*
-                        end);
-  log-debug("template-directory is %s", *template-directory*);
+  local
+    method process-dir-attr (attr-name, default-subdir-name)
+      let path = get-attr(node, attr-name);
+      let dir =
+        simplify-locator(if (path)
+                           merge-locators(as(<directory-locator>, path), *play-root-dir*)
+                         elseif (default-subdir-name)
+                           subdirectory-locator(*play-root-dir*, default-subdir-name)
+                         else
+                           *play-root-dir*
+                         end);
+      log-debug("%s is %s", attr-name, dir);
+      dir
+    end method;
+
+  *template-directory* := process-dir-attr(#"template-directory", #f);
+  *shares-directory* := process-dir-attr(#"shares-directory", "shares");
+  fs/ensure-directories-exist(*shares-directory*);
+
+  let base-url = get-attr(node, #"base-url");
+  if (base-url)
+    *base-url* := base-url;
+  end;
+  log-debug("base-url is %s", *base-url*);
 
   let dylan-compiler = get-attr(node, #"dylan-compiler");
   let $DYLAN = os/environment-variable("DYLAN");
@@ -43,7 +60,7 @@ define sideways method process-config-element
            else
              error("no Dylan compiler configured and $DYLAN not set");
            end;
-  *dylan-compiler-location* := simplify-locator(dc);
+  *dylan-compiler-location* := resolve-locator(dc);
   if (~fs/file-exists?(*dylan-compiler-location*))
     error("Dylan compiler binary doesn't exist: %s",
           as(<string>, *dylan-compiler-location*));
@@ -54,6 +71,8 @@ end method;
 define class <playground-page> (<dylan-server-page>)
 end;
 
+define variable *playground-page* :: false-or(<playground-page>) = #f;
+
 define constant $main-code-attr = "main-code";
 define constant $compiler-output-attr = "compiler-output";
 define constant $exe-output-attr = "exe-output";
@@ -62,7 +81,12 @@ define constant $debug-output-attr = "debug-output";
 define taglib playground ()
   // TODO: do this via onload() in js
   tag main-code (page :: <playground-page>) ()
-    output("%s", get-query-value($main-code-attr) | find-example-code($hello-world));
+    begin
+      output("%s",
+             get-attribute(page-context(), $main-code-attr)
+               | get-query-value($main-code-attr)
+               | find-example-code($hello-world));
+    end;
   tag library-code (page :: <playground-page>) ()
     begin
       let name = generate-project-name();
@@ -365,13 +389,88 @@ define method respond-to-get (page :: <example-resource>, #key name) => ()
   end;
 end method;
 
+define class <create-share> (<resource>) end;
+define class <lookup-share> (<resource>) end;
+
+define constant $shared-playground-error-message =
+  #:string:"
+// This Dylan Playground URL is not associated with any saved code.
+// It is possible the URL was copied incorrectly, or that it is too
+// old and the code has been deleted.";
+
+define method respond-to-get (resource :: <lookup-share>, #key key) => ()
+  let code = (key & find-share(key)) | $shared-playground-error-message;
+  set-attribute(page-context(), $main-code-attr, code);
+  set-header(current-response(), "Content-type", "text/html");
+  respond-to-get(*playground-page*);
+end method;
+
+define method respond-to-post (resource :: <create-share>, #key) => ()
+  // Main code is either in the page context (see <shared-resource>) or in the
+  // POST data.
+  let main-code =
+    get-attribute(page-context(), $main-code-attr) | get-query-value($main-code-attr);
+  let result = make(<string-table>);
+  if (main-code & strip(main-code) ~= "")
+    let key = generate-share-key(main-code);
+    find-share(key) | save-share(key, main-code);
+    let url = url-for-share-key(key);
+    result["URL"] := url;
+  else
+    result["error"] := "nothing to share!";
+  end;
+  encode-json(current-response(), result);
+end method;
+
+define function generate-share-key (text :: <string>) => (key :: <string>)
+  as-lowercase(copy-sequence(hexdigest(sha1(text)), end: 16))
+end function;
+
+define function find-share (key :: <string>) => (text :: false-or(<string>))
+  block ()
+    fs/with-open-file (stream = locator-for-share-key(key),
+                       direction: #"input",
+                       // https://github.com/dylan-lang/opendylan/issues/1358
+                       if-does-not-exist: #f)
+      read-to-end(stream);
+    end
+  exception (<error>)
+    #f
+  end
+end function;
+
+// TODO: potential race between multiple server threads. Even though keys
+// are based on the input code, people might try to share canned examples.
+define function save-share (key :: <string>, text :: <string>) => ()
+  let locator = locator-for-share-key(key);
+  fs/ensure-directories-exist(locator);
+  fs/with-open-file (stream = locator,
+                    direction: #"output",
+                    if-does-not-exist: #"create")
+    write(stream, text);
+  end;
+end function;
+
+define function url-for-share-key (key :: <string>) => (url :: <string>)
+  concatenate(*base-url*, "shared/", key)
+end function;
+
+define function locator-for-share-key (key :: <string>) => (locator :: <file-locator>)
+  merge-locators(as(<file-locator>, key),
+                 subdirectory-locator(*shares-directory*, copy-sequence(key, end: 2)))
+end function;
+
 define function main ()
   local method before-startup (server :: <http-server>)
           let source = merge-locators(as(<file-locator>, "playground.dsp"),
                                       *template-directory*);
-          add-resource(server, "/",               make(<playground-page>, source: source));
+          *playground-page* := make(<playground-page>, source: source);
+
+          add-resource(server, "/",               *playground-page*);
           add-resource(server, "/example/{name}", make(<example-resource>));
           add-resource(server, "/run",            make(<build-and-run>));
+          add-resource(server, "/share",          make(<create-share>));
+          add-resource(server, "/shared/{key}",   make(<lookup-share>));
           add-resource(server, "/static",
                        make(<directory-resource>,
                             directory: subdirectory-locator(*play-root-dir*, "static")));

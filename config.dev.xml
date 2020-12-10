@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- dev config logs to stdout and uses the dev/ subdirectory. -->
+<!-- dev playground config -->
 
 <http-server>
 
   <server server-root="/home/cgay/dylan/workspaces/playground/dev"
-          debug="no"
+          debug="yes"
           use-default-virtual-host="yes"
           />
 
   <listener address="0.0.0.0" port="3600" ssl="no"/>
 
+  <!-- Reparse DSP templates if they've changed. -->
   <dsp reparse-templates="yes" />
 
-  <!-- Log to stdout by default. Add location="server.log" if desired. -->
+  <!-- Remove `location` if you want logs on stdout. -->
   <debug-log
       name="http.server"
       level="trace"
-      location="server.log"
       />
 
   <error-log
@@ -26,11 +26,19 @@
 
   <request-log
       name="http.server.requests"
-      additive="yes" />
+      location="request.log" />
 
+  <!--
+      Use the DSP templates from the git checkout directly so that changes are
+      immediately reflected.
+
+      TODO: shouldn't be necessary to redundantly specify the base URL.
+  -->
   <dylan-web-playground
       root-directory="/home/cgay/dylan/workspaces/playground/dev"
+      shares-directory="/home/cgay/dylan/workspaces/playground/dev/shares"
       template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
+      base-url="http://50.116.53.62:3600/"
       />
 
 </http-server>

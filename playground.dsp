@@ -40,17 +40,11 @@
       .examples-column > div {
           padding-bottom: 40px;
       }
-      button#run-button {
+      button {
           background-color: #4caf50;
           border-radius: 4px;
           font-size: large;
           padding: 8px 16px;
-      }
-      button#module-button {
-          background-color: #4caf50;
-          border-radius: 4px;
-          margin-bottom: 4px;
-          padding: 4px 8px;
       }
     </style>
     <script>
@@ -100,6 +94,24 @@
           request.open("POST", "/run", true);
           request.send(fdata);
       }
+      function shareCode() {
+          var main_code = document.getElementById("main-code");
+          var fdata = new FormData();
+          fdata.append("main-code", main_code.value);
+          var request = new XMLHttpRequest();
+          request.addEventListener("load", function (event) {
+              alert(event.target.responseText);
+              var table = JSON.parse(event.target.responseText);
+              if (table["URL"]) {
+                  alert(table["URL"]); // temp
+              }
+          });
+          request.addEventListener("error", function (event) {
+              alert(event);
+          });
+          request.open("POST", "/share", true);
+          request.send(fdata);
+      }
     </script>
   </head>
 
@@ -126,6 +138,9 @@
         <div class="examples-column">
           <div>
             <button id="run-button" onClick="buildAndRunCode()">Run &gt;&gt;</button>
+          </div>
+          <div>
+            <button id="share-button" onClick="shareCode()">Share</button>
           </div>
           <div>
             <label for="examples-menu">Choose an example</label>
