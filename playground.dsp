@@ -45,7 +45,7 @@
       }
       .output {
           font-family: monospace;
-          white-space: pre;
+          white-space: pre-wrap;
       }
       a {
           padding: 1px 30px 1px 1px;
