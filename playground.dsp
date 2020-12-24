@@ -43,6 +43,10 @@
           flex-direction: row;
           font-size: small;
       }
+      .output {
+          font-family: monospace;
+          white-space: pre;
+      }
       a {
           padding: 1px 30px 1px 1px;
       }
@@ -182,9 +186,9 @@
     </div> <!-- main-column -->
     <p/>
 
-    <pre id="compiler-output"></pre>
+    <pre id="compiler-output" class="output"></pre>
     <hr>
-    <pre id="exe-output"></pre>
+    <pre id="exe-output" class="output"></pre>
 
   </body>
 </html>

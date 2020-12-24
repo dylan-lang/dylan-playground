@@ -360,7 +360,7 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
     elseif (starts-with?(line, "/") & find-substring(line, "/sources/dylan/"))
       in-dylan-warning? := #t;
     elseif (~empty?(line) & ~any?(starts-with?(line, _), $blacklist-prefixes))
-      add!(keep, line);
+      add!(keep, full-line);
     end;
   end for;
   let dir-prefix = as(<string>, *play-root-dir*);
