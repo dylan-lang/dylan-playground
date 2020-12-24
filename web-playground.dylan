@@ -23,7 +23,7 @@ define sideways method process-config-element
                                   get-attr(node, #"root-directory") | server.server-root),
                                server.server-root);
   *play-root-dir* := resolve-locator(playdir);
-  log-debug("root-directory is %s", *play-root-dir*);
+  log-info("root-directory is %s", *play-root-dir*);
 
   local
     method process-dir-attr (attr-name, default-subdir-name)
@@ -36,7 +36,7 @@ define sideways method process-config-element
                          else
                            *play-root-dir*
                          end);
-      log-debug("%s is %s", attr-name, dir);
+      log-info("%s is %s", attr-name, dir);
       dir
     end method;
 
@@ -48,7 +48,7 @@ define sideways method process-config-element
   if (base-url)
     *base-url* := base-url;
   end;
-  log-debug("base-url is %s", *base-url*);
+  log-info("base-url is %s", *base-url*);
 
   let dylan-compiler = get-attr(node, #"dylan-compiler");
   let $DYLAN = os/environment-variable("DYLAN");
@@ -65,7 +65,7 @@ define sideways method process-config-element
     error("Dylan compiler binary doesn't exist: %s",
           as(<string>, *dylan-compiler-location*));
   end;
-  log-debug("dylan-compiler is %s", *dylan-compiler-location*);
+  log-info("dylan-compiler is %s", *dylan-compiler-location*);
 end method;
 
 define class <playground-page> (<dylan-server-page>)
@@ -105,23 +105,12 @@ define class <build-and-run> (<resource>) end;
 
 define method respond-to-post (resource :: <build-and-run>, #key) => ()
   set-header(current-response(), "Content-Type", "application/json");
-
-  // debug
-  do-query-values(method (key, val)
-                    log-debug("key = %s, val = %s", key, val);
-                  end);
-
   let result = make(<string-table>);
   let main-code = get-query-value($main-code-attr);
-  log-debug("bbb main-code = %=", main-code);
-  log-debug("bbb request-content = %=", request-content(current-request()));
   if (main-code & main-code ~= "")
-    log-debug("program code: %s", main-code);
     block ()
       let project-name = generate-project-name();
       let (compiler-output, exe-output) = build-and-run-code(project-name, main-code);
-      log-debug("compiler-output = %=", compiler-output);
-      log-debug("exe-output = %s", exe-output);
       result[$compiler-output-attr] := compiler-output;
       result[$exe-output-attr] := exe-output;
     exception (ex :: <error>)
@@ -174,7 +163,6 @@ define function run-executable
                        $max-memory-kbytes,
                        $max-cpu-time-seconds,
                        as(<string>, exe-path));
-  log-debug("command = %s", command);
   let exe-output
     = with-output-to-string (stream)
         block (return)
@@ -292,8 +280,6 @@ define function build-project
   let build-output
     = with-output-to-string (stream)
         local method outputter (output :: <byte-string>, #key end: _end :: <integer>)
-                log-debug("compiler output: %s",
-                          strip-right(copy-sequence(output, end: _end)));
                 write(stream, output, end: _end);
               end;
         let (sec, usec)

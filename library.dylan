@@ -46,6 +46,7 @@ define module web-playground
               get-session,
               http-server-main,
               log-debug,
+              log-info,
               output,
               page-context,
               process-config-element,
