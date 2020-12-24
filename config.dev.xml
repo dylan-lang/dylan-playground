@@ -4,7 +4,7 @@
 
 <http-server>
 
-  <server server-root="/home/cgay/dylan/workspaces/playground/dev"
+  <server root="/home/cgay/dylan/workspaces/playground/dev"
           debug="yes"
           use-default-virtual-host="yes"
           />

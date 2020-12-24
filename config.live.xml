@@ -6,7 +6,7 @@
 
 <http-server>
 
-  <server server-root="/home/cgay/dylan/workspaces/playground/live"
+  <server root="/home/cgay/dylan/workspaces/playground/live"
           debug="no"
           use-default-virtual-host="yes"
           />
@@ -29,7 +29,7 @@
       additive="no"
       max-size="20000000" />
 
-  <!-- The directories are relative to server-root. Use snapshot of compiler so
+  <!-- The directories are relative to server root. Use snapshot of compiler so
        that it's stable. -->
   <dylan-web-playground
       root-directory="/home/cgay/dylan/workspaces/playground/live"
