@@ -42,12 +42,16 @@ To deploy "live":
 * Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
   Dylan to the "live" directory.
 
-* Start the server with authbind if running it on a privileged port:
+* Configure systemd. As root, run these commands:
 
   ```shell
-  cd live
-  authbind bin/web-playground --config config.live.xml
+  cp dylan-playground.service /etc/systemd/system/
+  systemctl start dylan-playground
+  # ...check /var/log/syslog to see that it started correctly...
+  systemctl enable dylan-playground
   ```
+
+* Or start it by hand using the command in dylan-playground.service
 
 ## HTTPS
 
