@@ -164,15 +164,13 @@ end function;
 
 define constant $max-output-chars :: <integer> = 10000;
 define constant $max-memory-kbytes :: <integer> = 100000;
-define constant $max-cpu-time-seconds :: <integer> = 1;
+define constant $max-cpu-time-seconds :: <integer> = 2;
 
 define function run-executable
     (playdir :: <directory-locator>, exe-path :: <file-locator>) => (output :: <string>)
   let output-bytes = 0;
-  // ulimit -t doesn't seem to have any effect. Maybe just detach the process,
-  // keep a timer and send SIGTERM instead.
   let command
-    = format-to-string("/bin/sh -c 'ulimit -S -v %d && ulimit -S -c 0 && ulimit -S -t %d && exec %s'",
+    = format-to-string("/bin/sh -c 'ulimit -v %d; ulimit -c 0; ulimit -t %d; %s'",
                        $max-memory-kbytes,
                        $max-cpu-time-seconds,
                        as(<string>, exe-path));
