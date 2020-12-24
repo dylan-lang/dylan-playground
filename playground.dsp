@@ -15,8 +15,8 @@
       .main-column {
           display: flex;
           flex-direction: column;
-          padding-left: 20px;
-          padding-right: 20px;
+          padding-left: 15px;
+          padding-right: 15px;
       }
       /* The top row contains the title and most of the buttons. */
       .top-row {
@@ -36,7 +36,6 @@
       .editor {
           display: block;
           flex-grow: 8;
-          padding-right: 20px;
       }
       .links-row {
           display: flex;
@@ -181,14 +180,12 @@
         <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
         <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
         <a href="https://github.com/cgay/web-playground/issues" target="_blank">Report a bug</a>
-      </div> <!-- links-row -->
+      </div>
+
+      <pre id="compiler-output" class="output"></pre>
+      <hr width="100%"/>
+      <pre id="exe-output" class="output"></pre>
 
     </div> <!-- main-column -->
-    <p/>
-
-    <pre id="compiler-output" class="output"></pre>
-    <hr>
-    <pre id="exe-output" class="output"></pre>
-
   </body>
 </html>
