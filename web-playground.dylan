@@ -373,30 +373,24 @@ define method respond-to-get (page :: <example-resource>, #key name) => ()
   end;
 end method;
 
-define function main ()
-  local method before-startup (server :: <http-server>)
-          let source = merge-locators(as(<file-locator>, "playground.dsp"),
-                                      *template-directory*);
-          *playground-page* := make(<playground-page>, source: source);
+define method register-resources (server :: <http-server>)
+  let source = merge-locators(as(<file-locator>, "playground.dsp"),
+                              *template-directory*);
+  *playground-page* := make(<playground-page>, source: source);
 
-          add-resource(server, "/",               *playground-page*);
-          add-resource(server, "/example/{name}", make(<example-resource>));
-          add-resource(server, "/run",            make(<build-and-run>));
-          add-resource(server, "/share",          make(<create-share>));
-          add-resource(server, "/shared/{key}",   make(<lookup-share>));
-          add-resource(server, "/static",
-                       make(<directory-resource>,
-                            directory: subdirectory-locator(*play-root-dir*, "static")));
-          // temp, for testing server connection closing problem
-          add-resource(server, "/error",
-                       make(<function-resource>,
-                            function: method (#rest args)
-                                        error("my dog has fleas")
-                                      end,
-                            methods: list($http-get-method)));
-        end;
-  http-server-main(server: make(<http-server>),
-                   before-startup: before-startup);
-end function;
-
-main();
+  add-resource(server, "/",               *playground-page*);
+  add-resource(server, "/example/{name}", make(<example-resource>));
+  add-resource(server, "/run",            make(<build-and-run>));
+  add-resource(server, "/share",          make(<create-share>));
+  add-resource(server, "/shared/{key}",   make(<lookup-share>));
+  add-resource(server, "/static",
+               make(<directory-resource>,
+                    directory: subdirectory-locator(*play-root-dir*, "static")));
+  // temp, for testing server connection closing problem
+  add-resource(server, "/error",
+               make(<function-resource>,
+                    function: method (#rest args)
+                                error("my dog has fleas")
+                              end,
+                    methods: list($http-get-method)));
+end method;
