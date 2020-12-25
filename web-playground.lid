@@ -3,5 +3,5 @@ Files: library
        early
        examples
        share
-       web-playground
+       play
        main
