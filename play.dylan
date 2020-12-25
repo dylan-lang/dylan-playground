@@ -18,7 +18,7 @@ define variable *base-url* :: <string> = "https://play.opendylan.org/";
 
 // HTTP server calls this when loading the config.
 define sideways method process-config-element
-    (server :: <http-server>, node :: xml/<element>, name == #"dylan-web-playground")
+    (server :: <http-server>, node :: xml/<element>, name == #"dylan-playground")
   let playdir = merge-locators(as(<directory-locator>,
                                   get-attr(node, #"root-directory") | server.server-root),
                                server.server-root);
@@ -127,7 +127,7 @@ define function generate-project-name () => (project-name :: <string>)
 end function;
 
 define function short-session-id () => (id :: <string>)
-  let key = "dylan-web-playground-id";
+  let key = "dylan-playground-id";
   let session = get-session(current-request());
   get-attribute(session, key)
     | begin

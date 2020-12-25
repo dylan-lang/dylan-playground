@@ -29,7 +29,7 @@ To deploy "live":
 * Modify `live/config.live.xml` to have absolute paths:
 
   ```xml
-  <dylan-web-playground
+  <dylan-playground
       root-directory="/path/to/playground/live"
       template-directory="/path/to/playground/live"
       dylan-compiler="/path/to/opendylan/bin/dylan-compiler"

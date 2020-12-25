@@ -34,7 +34,7 @@
 
       TODO: shouldn't be necessary to redundantly specify the base URL.
   -->
-  <dylan-web-playground
+  <dylan-playground
       root-directory="/home/cgay/dylan/workspaces/playground/dev"
       shares-directory="/home/cgay/dylan/workspaces/playground/dev/shares"
       template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
