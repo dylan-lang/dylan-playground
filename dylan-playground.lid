@@ -1,4 +1,4 @@
-Library: web-playground
+Library: dylan-playground
 Files: library
        early
        examples

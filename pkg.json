@@ -1,10 +1,10 @@
 {
-    "name": "web-playground",
+    "name": "dylan-playground",
     "deps": [
         "hash-algorithms head",
         "http head",
         "strings head",
         "xml-parser head"
     ],
-    "location": "https://github.com/cgay/web-playground"
+    "location": "https://github.com/cgay/dylan-playground"
 }

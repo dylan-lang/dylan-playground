@@ -37,7 +37,7 @@
   <dylan-playground
       root-directory="/home/cgay/dylan/workspaces/playground/dev"
       shares-directory="/home/cgay/dylan/workspaces/playground/dev/shares"
-      template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
+      template-directory="/home/cgay/dylan/workspaces/playground/dylan-playground"
       base-url="http://50.116.53.62:3600/"
       />
 

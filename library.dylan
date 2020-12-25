@@ -1,6 +1,6 @@
 Module: dylan-user
 
-define library web-playground
+define library dylan-playground
   use common-dylan;
   use dsp;
   use hash-algorithms;
@@ -16,7 +16,7 @@ define library web-playground
   use uuid;
 end library;
 
-define module web-playground
+define module dylan-playground
   use common-dylan;
   use date,
     import: { <day/time-duration>, current-date, decode-duration };

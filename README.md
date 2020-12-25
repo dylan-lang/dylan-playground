@@ -1,4 +1,4 @@
-# web-playground
+# dylan-playground
 
 Implementation of play.opendylan.org which lets users try out Dylan code in a
 web browser.
@@ -6,10 +6,10 @@ web browser.
 ## Installation
 
 * Install `dylan-tool`
-* Create a workspace containing this repository by running `dylan-tool new playground web-playground`.
+* Create a workspace containing this repository by running `dylan-tool new playground dylan-playground`.
 * cd playground
 * Pull down all dependencies with `dylan-tool update`.
-* Build with `dylan-compiler -build web-playground`
+* Build with `dylan-compiler -build dylan-playground`
 * I use authbind to allow non-privileged access to ports 80 and 443:
 
   ```shell
@@ -22,7 +22,7 @@ web browser.
 ## Deployment
 
 I run the dev instance out of my "playground" workspace directory with
-`_build/bin/web-playground --config web-playground/config.dev.xml`.
+`_build/bin/dylan-playground --config dylan-playground/config.dev.xml`.
 
 To deploy "live":
 
@@ -36,10 +36,10 @@ To deploy "live":
       />
   ```
 
-* Stop the current web-playground process so the executable file can be
+* Stop the current dylan-playground process so the executable file can be
   replaced.
 
-* Run `web-playground/deploy.sh live` to deploy the code, assets, and Open
+* Run `dylan-playground/deploy.sh live` to deploy the code, assets, and Open
   Dylan to the "live" directory.
 
 * Configure systemd. As root, run these commands:
@@ -79,7 +79,7 @@ up.
   ssl_certificate     /etc/letsencrypt/live/play.opendylan.org/cert.pem;
   ssl_certificate_key /etc/letsencrypt/live/play.opendylan.org/privkey.pem;
   location / {
-    proxy_pass http://localhost:80;  # Dylan web-playground server
+    proxy_pass http://localhost:80;  # dylan-playground server
   }
   ```
 

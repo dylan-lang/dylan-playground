@@ -1,4 +1,4 @@
-Module: web-playground
+Module: dylan-playground
 
 // Some collected examples to use in the playground.  This file is a bit
 // unusual because of the long multi-line strings of the form #:string:|...|,

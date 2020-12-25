@@ -1,4 +1,4 @@
-Module: web-playground
+Module: dylan-playground
 
 begin
   http-server-main(server: make(<http-server>),

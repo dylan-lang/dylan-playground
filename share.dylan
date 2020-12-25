@@ -1,4 +1,4 @@
-Module: web-playground
+Module: dylan-playground
 Synopsis: Sharing playground examples
 
 define class <create-share> (<resource>) end;

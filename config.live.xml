@@ -33,7 +33,7 @@
        that it's stable. -->
   <dylan-playground
       root-directory="/home/cgay/dylan/workspaces/playground/live"
-      template-directory="/home/cgay/dylan/workspaces/playground/web-playground"
+      template-directory="/home/cgay/dylan/workspaces/playground/dylan-playground"
       dylan-compiler="/home/cgay/dylan/opendylan-playground/bin/dylan-compiler"
       />
 

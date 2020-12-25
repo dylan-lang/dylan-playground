@@ -8,7 +8,7 @@ Type=simple
 Restart=always
 RestartSec=2
 User=cgay
-ExecStart=/usr/bin/authbind /home/cgay/dylan/workspaces/playground/live/bin/web-playground --config /home/cgay/dylan/workspaces/playground/live/config.live.xml
+ExecStart=/usr/bin/authbind /home/cgay/dylan/workspaces/playground/live/bin/dylan-playground --config /home/cgay/dylan/workspaces/playground/live/config.live.xml
 
 [Install]
 WantedBy=multi-user.target

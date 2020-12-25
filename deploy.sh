@@ -2,9 +2,9 @@
 
 # Stage new code in a target directory.
 # Assumes a layout like this:
-#   ./_build/bin/web-playground   # binary
-#   ./web-playground              # web-playground checkout
-#   ./live                        # live deployment dir created by this script
+#   ./_build/bin/dylan-playground   # binary
+#   ./dylan-playground              # dylan-playground checkout
+#   ./live                          # live deployment dir created by this script
 
 if [[ $# != 1 ]]; then
     echo "Usage: `basename $0` <directory>"

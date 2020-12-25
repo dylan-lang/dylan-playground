@@ -1,7 +1,7 @@
-Module: web-playground
+Module: dylan-playground
 Synopsis: Web app backing play.opendylan.org
 
-// Bug list: https://github.com/cgay/web-playground/issues
+// Bug list: https://github.com/cgay/dylan-playground/issues
 
 // Root of the playground. Directory where user project subdirectories live and
 // directory in which to run dylan-compiler, i.e. where the shared _build
