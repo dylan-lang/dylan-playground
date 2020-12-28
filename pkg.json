@@ -4,6 +4,7 @@
         "hash-algorithms head",
         "http head",
         "strings head",
+        "uuid head",
         "xml-parser head"
     ],
     "location": "https://github.com/cgay/dylan-playground"
