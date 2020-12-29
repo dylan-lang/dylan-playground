@@ -78,7 +78,9 @@ up.
   server_name play.opendylan.org;
   ssl_certificate     /etc/letsencrypt/live/play.opendylan.org/cert.pem;
   ssl_certificate_key /etc/letsencrypt/live/play.opendylan.org/privkey.pem;
+  limit_req_zone $binary_remote_addr zone=playground:1m rate=30r/m;
   location / {
+    limit_req zone=playground burst=10;
     proxy_pass http://localhost:80;  # dylan-playground server
   }
   ```
