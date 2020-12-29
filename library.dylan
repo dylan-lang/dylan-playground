@@ -55,7 +55,7 @@ define module dylan-playground
               respond-to-post,
               server-root };
   use json,
-    import: { encode-json };
+    import: { encode-json, parse-json, <json-parse-error> };
   use locators,
     import: { <directory-locator>,
               <file-locator>,

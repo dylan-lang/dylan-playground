@@ -1,6 +1,12 @@
 Module: dylan-playground
 Synopsis: Sharing playground examples
 
+// Format in which shares are stored.
+//
+// 0: only the code, stored as plain text exactly as received.
+// 1: json: { "format": <number>, "code": <string> }
+define constant $share-format = 1;
+
 define class <create-share> (<resource>) end;
 define class <lookup-share> (<resource>) end;
 
@@ -47,9 +53,21 @@ define function find-share (key :: <string>) => (text :: false-or(<string>))
                        direction: #"input",
                        // https://github.com/dylan-lang/opendylan/issues/1358
                        if-does-not-exist: #f)
-      read-to-end(stream);
+      let putative-json = read-to-end(stream);
+      log-debug("putative-json = %=\n%s", putative-json, putative-json);
+      let code = block ()
+                   let data = parse-json(putative-json);
+                   select (data["format"])
+                     1 => data["code"];
+                   end
+                 exception (<json-parse-error>)
+                   // Assume the data is format version 0.
+                   putative-json
+                 end;
+      code
     end
-  exception (<error>)
+  exception (err :: <error>)
+    log-debug("error loading share: %s", err);
     #f
   end
 end function;
@@ -58,9 +76,14 @@ define function save-share (key :: <string>, text :: <string>) => ()
   let locator = locator-for-share-key(key);
   fs/ensure-directories-exist(locator);
   fs/with-open-file (stream = locator,
-                    direction: #"output",
-                    if-does-not-exist: #"create")
-    write(stream, text);
+                     direction: #"output",
+                     if-does-not-exist: #"create")
+    encode-json(stream, begin
+                          let t = make(<string-table>);
+                          t["format"] := $share-format;
+                          t["code"] := text;
+                          t
+                        end);
   end;
 end function;
 
