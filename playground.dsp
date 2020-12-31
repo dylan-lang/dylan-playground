@@ -172,7 +172,7 @@
       </div>
 
       <div class="editor">
-        <textarea autofocus id="main-code" rows="20" onkeydown="hideUrlBox()"><playground:main-code/></textarea>
+        <textarea autofocus id="main-code" rows="30" onkeydown="hideUrlBox()"><playground:main-code/></textarea>
       </div>
 
       <div class="links-row">
