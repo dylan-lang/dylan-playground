@@ -37,7 +37,7 @@ define method respond-to-post (resource :: <create-share>, #key) => ()
   else
     result["error"] := "nothing to share!";
   end;
-  encode-json(current-response(), result);
+  print-json(result, current-response());
 end method;
 
 // Generate a key to use to find a playground share. The key is used in the
@@ -78,12 +78,13 @@ define function save-share (key :: <string>, text :: <string>) => ()
   fs/with-open-file (stream = locator,
                      direction: #"output",
                      if-does-not-exist: #"create")
-    encode-json(stream, begin
-                          let t = make(<string-table>);
-                          t["format"] := $share-format;
-                          t["code"] := text;
-                          t
-                        end);
+    print-json(begin
+                 let t = make(<string-table>);
+                 t["format"] := $share-format;
+                 t["code"] := text;
+                 t
+               end,
+               stream);
   end;
 end function;
 

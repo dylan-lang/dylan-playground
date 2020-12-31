@@ -85,7 +85,7 @@ define taglib playground ()
       output("%s",
              get-attribute(page-context(), $main-code-attr)
                | get-query-value($main-code-attr)
-               | find-example-code($hello-world));
+               | find-example-code($default-example));
     end;
   tag library-code (page :: <playground-page>) ()
     begin
@@ -95,9 +95,10 @@ define taglib playground ()
   tag examples-menu (page :: <playground-page>) ()
     for (v in $examples)
       let name = v[0];
-      output("<option value=\"%s\">%s</option>\n", name, name);
+      output("<option value=\"%s\" %s>%s</option>\n",
+             name, (name = $default-example & "selected") | "", name);
     end;
-  tag example (page :: <playground-page>) (name :: <string> = $hello-world)
+  tag example (page :: <playground-page>) (name :: <string> = $default-example)
     output(find-example-code(name) | "example not found");
 end;
 
@@ -119,7 +120,7 @@ define method respond-to-post (resource :: <build-and-run>, #key) => ()
   else
     result[$compiler-output-attr] := "Please enter some code.";
   end;
-  encode-json(current-response(), result);
+  print-json(result, current-response());
 end method;
 
 define function generate-project-name () => (project-name :: <string>)
@@ -253,7 +254,7 @@ define module %s
   use print;
   use pprint;
   use streams;
-  // from libraries with only one exported module
+  // from libraries with one module, named the same as the library.
   use hash-algorithms;
   use logging;
   use regular-expressions;
