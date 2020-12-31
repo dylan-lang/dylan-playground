@@ -7,18 +7,34 @@ Module: dylan-playground
 // since the Examples menu will be generated from this.
 
 
-define constant $hello-world = "Hello World";
+define constant $default-example = "Fibonacci Closure";
 
 // A vector of #["Menu item name", example-code] vectors.  The order here is
 // reflected in the Examples menu. To some extent they're ordered from simple
 // to more complex.
 define constant $examples
-  = vector(vector($hello-world, #:string:|
+  = vector(vector("Hello World", #:string:|
 format-out("Hello %s\n", "World")
 |),
 
+           vector("Fibonacci Closure", #:string:|
+define method fib ()
+  let a = 0;
+  let b = 1;
+  method ()
+    let r = a + b;
+    a := b;
+    b := r;
+    a
+  end
+end;
 
-           vector("Factorial (recursive)", #:string:|
+let f = fib();
+for (i from 1 to 20) format-out("%= ", f()) end
+|),
+
+
+           vector("Factorial, recursive", #:string:|
 // A recursive version of factorial using singleton method dispatch.
 define method factorial (n == 0) 1 end;  // called when n = 0
 define method factorial (n == 1) 1 end;  // called when n = 1
@@ -34,11 +50,11 @@ format-out("%d", factorial(10));
 //   define generic factorial (n :: <integer>) => (n :: <integer>);
 |),
 
-           vector("Factorial (iterative)", #:string:|
+           vector("Factorial, iterative", #:string:|
 define function factorial (n :: <integer>) => (factorial :: <integer>)
   iterate loop (n = n, total = 1)
     if (n < 2)
-      total                     // return total from the if>loop>function
+      total                     // return total from the if/loop/function
     else
       loop(n - 1, n * total)    // tail call = iteration
     end
@@ -46,39 +62,37 @@ define function factorial (n :: <integer>) => (factorial :: <integer>)
 end function;
 
 format-out("%d", factorial(10));
+
+// Try rewriting it using a more traditional "for" loop!
 |),
 
            vector("for loop", #:string:|
+// The "for" loop may have multiple iteration clauses. The first
+// one to terminate ends the iteration.
+
 for (i from 1,
      c in "abcdef",
      until: c = 'e')
   format-out("%d: %s\n", i, c);
 end;
-
-// Things to try:
-// * Write the same loop with the iterate macro. Use Library Docs index ->
 |),
 
            vector("Classes", #:string:|
-define abstract class <named-thing> (<object>)
-  constant slot name :: <string>, required-init-keyword: name:;
+// Classes are the primary way to build data structures in Dylan.
+// Slots are accessed via normal function calls.
+
+define class <account> (<object>)
+  constant slot account-id :: <integer>,
+    required-init-keyword: id:;
+  constant slot account-name :: <string>,
+    required-init-keyword: name:;
+  slot account-balance :: <integer> = 0;
 end;
 
-define class <person> (<named-thing>)
-  slot age :: <integer> = 0, init-keyword: age:;
-end;
-
-let p = make(<person>, name: "Dylan");
-format-out("Name: %s\nAge: %d\n", p.name, p.age);
-
-p := make(<person>, name: "Thomas", age: 23);
-format-out("Name: %s\nAge: %d\n", p.name, p.age);
-
-p.age := 24;
-format-out("Name: %s\nAge: %d\n", p.name, p.age);
-
-// Things to try:
-// * Use multiple inheritance to implement age via an <aged-thing> abstract class.
+let a = make(<account>, id: 1, name: "Zippy");
+account-balance(a) := 500;
+format-out("%s (#%d) balance = %d",
+           account-name(a), account-id(a), account-balance(a));
 |),
 
            vector("Error handling", #:string:|
@@ -95,10 +109,11 @@ end;
 // * Replace "floof" with other kinds of run-time errors.
 |),
 
-           vector("Show subclasses", #:string:{
+           vector("List subclasses", #:string:{
 // This displays a class's subclasses via indentation
 // while avoiding repetition due to multiple inheritance.
-define function show-all-subclasses (class :: <class>)
+
+define function list-subclasses (class :: <class>)
   let seen = make(<stretchy-vector>);
   iterate loop (class = class, indent = "")
     let seen? = member?(class, seen);
@@ -114,56 +129,73 @@ define function show-all-subclasses (class :: <class>)
   end iterate;
 end function;
 
-show-all-subclasses(<collection>);
+list-subclasses(<collection>);
 
 // Things to try:
 // * Change <collection> to <number>, <object>, or object-class(42).
-// * Make show-type-hierarchy(42) work. I.e., passing an integer or string.
+// * Make list-subclasses(42) work. I.e., passing an integer or string.
 }),
 
-           // TODO: this code could be improved!
-           vector("Roman numerals", #:string:|
-define constant $limits
-  = #[1000, 900, 500, 400, 100,  90,   50,  40,   10,  9,    5,   1];
-
-define constant $romans
-  = #["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "I"];
-
-define method decimal-to-roman (num)
-  while (num > 0)
-    block (next)
-      for (limit in $limits,
-           roman in $romans)
-        if (num >= limit)
-          format-out("%s", roman);
-          num := num - limit;
-          next();
-        end;
-      end;
-    end block;
-  end while;
-end method;
-
-decimal-to-roman(1234);
-|),
            vector("Macros", #:string:|
-// Macros define new syntax. For example, let's say you find "if (test) this
-// else that end" a bit wordy for otherwise short conditionals. This macro
-// defines iff(test, this, that) as an alternative syntax.
-define macro iff
-    { iff(?test:expression, ?true:expression, ?false:expression) } // pattern
- => { if (?test) ?true else ?false end } // generated code
+// Macros define new syntax. Much of core Dylan syntax, such as "for"
+// and "case", are implemented with macros. For example, suppose you
+// would rather write
+//   inc!(x)         or    inc!(x, 2)
+// instead of
+//   x := x + 1      or    x := x + 2
+
+define macro inc!
+    { inc!(?var:name) } => { inc!(?var, 1) }
+    { inc!(?var:name, ?val:expression) } => { ?var := ?var + ?val }
 end;
 
 let x = 0;
-iff(even?(x), x := 2, x := 4);
+inc!(x);
+inc!(x, 10);
 format-out("x = %d\n", x);
 
-// Things to notice/try:
-// * Only the first argument is evaluated, unlike if you defined "iff" as a function.
-// * Make it work without an ELSE part: iff(#t, this)
-//   Hint: duplicate the pattern and generated code lines and then modify them.
-// * Do not overuse macros! e.g., never use them for optimizations like inlining.
+// See https://opendylan.org/articles/macro-system/index.html to
+// get a sense of the full power of macros.
+|),
+           vector("Quicksort", #:string:|
+// A mostly dynamically typed version of quicksort.
+
+define method quicksort!
+    (v :: <sequence>) => (v :: <sequence>)
+  local
+    method exchange (m, n) => ()
+      let t = v[m];
+      v[m] := v[n];
+      v[n] := t
+    end,
+    method partition (lo, hi, x) => (i, j)
+      let i = for (i from lo to hi, while: v[i] < x)
+              finally i
+              end;
+      let j = for (j from hi to lo by -1, while: x < v[j])
+              finally j
+              end;
+      if (i <= j)
+        exchange(i, j);
+        partition(i + 1, j - 1, x)
+      else
+        values(i, j)
+      end
+    end,
+    method qsort (lo, hi) => ()
+      if (lo < hi)
+        let (i, j) = partition(lo, hi, v[round/(lo + hi, 2)]);
+        qsort(lo, j);
+        qsort(i, hi)
+      end
+    end;
+  qsort(0, v.size - 1);
+  format-out("%=\n", v);
+  v
+end method;
+
+quicksort!(vector("my", "dog", "has", "fleas"));
+quicksort!(list(4, 2, 900, -6));
 |));  // end define constant $examples
 
 define function find-example (name)
