@@ -224,6 +224,8 @@ define constant $lid-file-template
 define constant $library-file-template = #:string:|Module: dylan-user
 
 define library %s
+  use dylan,
+    import: { dylan-extensions };
   use common-dylan,
     import: {
       byte-vector, common-dylan, simple-random, simple-timers,
@@ -239,22 +241,25 @@ define library %s
 end library;
 
 define module %s
-  // from common-dylan
+  // modules imported from common-dylan
   use byte-vector;
   use common-dylan;
   use simple-random;
   use simple-timers;
   use simple-profiling;
   use transcendentals;
-  // from system
+  // modules imported from dylan
+  use dylan-extensions;
+  // modules imported from system
   use date;
-  // from io
+  use locators;
+  // modules imported from io
   use format;
   use format-out;
   use print;
   use pprint;
   use streams;
-  // from libraries with one module, named the same as the library.
+  // modules imported from libraries by the same name
   use hash-algorithms;
   use logging;
   use regular-expressions;
