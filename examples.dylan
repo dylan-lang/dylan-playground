@@ -110,8 +110,8 @@ end;
 |),
 
            vector("List subclasses", #:string:{
-// This displays a class's subclasses via indentation
-// while avoiding repetition due to multiple inheritance.
+// Display a class's subclasses via indentation while
+// avoiding repetition due to multiple inheritance.
 
 define function list-subclasses (class :: <class>)
   let seen = make(<stretchy-vector>);
@@ -135,7 +135,30 @@ list-subclasses(<collection>);
 // * Change <collection> to <number>, <object>, or object-class(42).
 // * Make list-subclasses(42) work. I.e., passing an integer or string.
 }),
+           vector("Graph Subclasses", #:string:|
+// Generate DOT language to represent a subclass graph.
+// One quick way to view the graph is to paste it here:
+// https://dreampuf.github.io/GraphvizOnline/
 
+define function dot (class :: <class>)
+  let seen = make(<stretchy-vector>);
+  format-out("digraph G {\n");
+  iterate loop (class = class)
+    let seen? = member?(class, seen);
+    let subclasses = direct-subclasses(class);
+    if (~seen?)
+      add!(seen, class);
+      for (subclass in subclasses)
+        format-out("  %= -> %=;\n", debug-name(class), debug-name(subclass));
+        loop(subclass);
+      end;
+    end;
+  end iterate;
+  format-out("}\n");
+end function;
+
+dot(<number>)
+|),
            vector("Macros", #:string:|
 // Macros define new syntax. Much of core Dylan syntax, such as "for"
 // and "case", are implemented with macros. For example, suppose you
