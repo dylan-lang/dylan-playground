@@ -5,7 +5,7 @@ web browser.
 
 ## Installation
 
-* Install `dylan-tool`
+* Install [dylan-tool](http://github.com/cgay/dylan-tool)
 * Create a workspace containing this repository by running `dylan-tool new playground dylan-playground`.
 * cd playground
 * Pull down all dependencies with `dylan-tool update`.
