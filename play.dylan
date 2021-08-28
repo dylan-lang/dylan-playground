@@ -232,8 +232,9 @@ define library %s
       simple-profiling, transcendentals
     };
   use hash-algorithms;
+  use json;
   use io,
-    import: { format, format-out, print, pprint, streams };
+    import: { format, format-out, print, pprint, standard-io, streams };
   use logging;
   use regular-expressions;
   use strings;
@@ -258,9 +259,11 @@ define module %s
   use format-out;
   use print;
   use pprint;
+  use standard-io;
   use streams;
   // modules imported from libraries by the same name
   use hash-algorithms;
+  use json;
   use logging;
   use regular-expressions;
   use strings;
