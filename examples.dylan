@@ -7,7 +7,7 @@ Module: dylan-playground
 // since the Examples menu will be generated from this.
 
 
-define constant $default-example = "Fibonacci Closure";
+define constant $default-example = "Hello World";
 
 // A vector of #["Menu item name", example-code] vectors.  The order here is
 // reflected in the Examples menu. To some extent they're ordered from simple
