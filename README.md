@@ -69,7 +69,8 @@ up.
 
   The cert should be renewed automatically due to a systemctl timer. See
   `systemctl list-timers`.  To renew the certificate manually, stop the
-  playground web server and run `certbot renew --standalone`.
+  playground web server and run `certbot renew --standalone` and restart
+  nginx with `systemctl restart nginx`.
 
 * Create new nginx config and restart nginx:
   ```
