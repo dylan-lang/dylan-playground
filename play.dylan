@@ -311,9 +311,9 @@ define function build-project
   end
 end function;
 
-// Don't show compiler output lines with these prefixes.  Seemed safer than a
-// whitelist.
-define constant $blacklist-prefixes
+// Don't show compiler output lines with these prefixes.  Seemed safer than an
+// allow list.
+define constant $disallow-prefixes
   = #["Opened project",
       "Loading namespace",
       "Updating definitions",
@@ -330,7 +330,7 @@ define constant $blacklist-prefixes
       "(This warning can be avoided",
       "Building targets"];
 
-// Remove blank lines, $blacklist-prefixes, and entire warnings that are in the
+// Remove blank lines, $disallow-prefixes, and entire warnings that are in the
 // dylan library. Also elide parts of pathnames.
 define function sanitize-build-output (output :: <string>) => (sanitized :: <string>)
 /* Example warning:
@@ -352,7 +352,7 @@ define function sanitize-build-output (output :: <string>) => (sanitized :: <str
       end;
     elseif (starts-with?(line, "/") & find-substring(line, "/sources/dylan/"))
       in-dylan-warning? := #t;
-    elseif (~empty?(line) & ~any?(starts-with?(line, _), $blacklist-prefixes))
+    elseif (~empty?(line) & ~any?(starts-with?(line, _), $disallow-prefixes))
       add!(keep, full-line);
     end;
   end for;
