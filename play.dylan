@@ -239,34 +239,36 @@ define library %s
   use regular-expressions;
   use strings;
   use system, import: { date, locators };
+  use testworks;
 end library;
 
 define module %s
-  // modules imported from common-dylan
+  // Modules imported from the common-dylan library...
   use byte-vector;
   use common-dylan;
   use simple-random;
   use simple-timers;
   use simple-profiling;
   use transcendentals;
-  // modules imported from dylan
+  // Modules imported from the dylan library...
   use dylan-extensions;
-  // modules imported from system
+  // Modules imported from the system library...
   use date;
   use locators;
-  // modules imported from io
+  // Modules imported from the io library...
   use format;
   use format-out;
   use print;
   use pprint;
   use standard-io;
   use streams;
-  // modules imported from libraries by the same name
+  // Modules imported from libraries by the same name...
   use hash-algorithms;
   use json;
   use logging;
   use regular-expressions;
   use strings;
+  use testworks;
 end module;
 |;
 
