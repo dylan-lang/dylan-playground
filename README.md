@@ -51,7 +51,7 @@ To deploy "live":
   systemctl enable dylan-playground
   ```
 
-* Or start it by hand using the command in dylan-playground.service
+* Or start it by hand using the command in `dylan-playground.service`.
 
 ## HTTPS
 
