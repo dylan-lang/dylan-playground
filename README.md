@@ -5,19 +5,12 @@ web browser.
 
 ## Installation
 
-* Install [dylan-tool](http://github.com/cgay/dylan-tool)
-* Create a workspace containing this repository by running `dylan-tool new playground dylan-playground`.
+* Install [dylan-tool](http://github.com/dylan-lang/dylan-tool)
+* Create a workspace containing this repository by running `dylan-tool new workspace playground`.
 * cd playground
+* `git clone https://github.com/dylan-lang/dylan-playground`
 * Pull down all dependencies with `dylan-tool update`.
 * Build with `dylan-compiler -build dylan-playground`
-* I use authbind to allow non-privileged access to ports 80 and 443:
-
-  ```shell
-  sudo touch /etc/authbind/byport/80
-  sudo touch /etc/authbind/byport/443
-  sudo chmod 777 /etc/authbind/byport/80
-  sudo chmod 777 /etc/authbind/byport/443
-  ```
 
 ## Deployment
 
@@ -59,12 +52,13 @@ Dylan's `ssl-network` has bit rotted so in the interest of speed I just put the
 playground behind an nginx proxy. Here are some reminders about how I set it
 up.
 
-* Start nginx with default settings, listening on port 80.
+* Start nginx with default settings. It must listen on port 80 for the cert
+  challenge.
 
 * Use certbot to install a Let's Encrypt cert and key:
   ```shell
-  $ apt-get install certbot python-certbot-nginx
-  $ certbot certonly --nginx
+  $ sudo snap install certbot
+  $ sudo certbot certonly --nginx
   ```
 
   The cert should be renewed automatically due to a systemctl timer. See
