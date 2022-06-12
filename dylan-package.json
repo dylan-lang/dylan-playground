@@ -1,17 +1,22 @@
 {
     "name": "dylan-playground",
-    "deps": [
+    "description": "Web-based playground in which to build and run Dylan code",
+    "version": "0.1",
+    "dependencies": [
         # Note that these deps need to include all the libraries used by
         # the generated code as well as by the playground code itself.
         # See play.dylan
         "hash-algorithms@1.0",
-        "http@1.0.1",
+        "http@1.1",
         "json@1.0",
         "logging@2.1",
-        "regular-expressions@1.0",
-        "strings@1.0",
+        "regular-expressions@0.2",
+        "strings@1.2",
         "uuid@0.1",
         "xml-parser@0.1"
     ],
-    "location": "https://github.com/cgay/dylan-playground"
+    "dev-dependencies": [
+        "testworks"
+    ],
+    "url": "https://github.com/dylan-lang/dylan-playground"
 }
