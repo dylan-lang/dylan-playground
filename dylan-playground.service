@@ -7,8 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=2
-User=cgay
-ExecStart=/usr/bin/authbind /home/cgay/dylan/workspaces/playground/live/bin/dylan-playground --config /home/cgay/dylan/workspaces/playground/live/config.live.xml
+User=root
+ExecStart=/opt/dylan-playground/live/bin/dylan-playground --config /opt/dylan-playground/live/config.xml --working-directory /opt/dylan-playground/live
 
 [Install]
 WantedBy=multi-user.target
