@@ -7,9 +7,9 @@
         # the generated code as well as by the playground code itself.
         # See play.dylan
         "hash-algorithms@1.0",
-        "http@1.1",
+        "http@1.1.1",
         "json@1.0",
-        "logging@2.1",
+        "logging@2.2",
         "regular-expressions@0.2",
         "strings@1.2",
         "uuid@0.1",
