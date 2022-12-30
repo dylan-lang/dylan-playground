@@ -228,7 +228,7 @@ define library %s
     import: { dylan-extensions };
   use common-dylan,
     import: {
-      byte-vector, common-dylan, simple-random, simple-timers,
+      byte-vector, common-dylan, machine-words, simple-random, simple-timers,
       simple-profiling, transcendentals
     };
   use hash-algorithms;
@@ -246,6 +246,7 @@ define module %s
   // Modules imported from the common-dylan library...
   use byte-vector;
   use common-dylan;
+  use machine-words;
   use simple-random;
   use simple-timers;
   use simple-profiling;
