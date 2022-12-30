@@ -4,7 +4,7 @@
 
 <http-server>
 
-  <server root="/home/cgay/dylan/workspaces/playground/dev"
+  <server root="/opt/dylan-playground/dev"
           debug="yes"
           use-default-virtual-host="yes"
           />
@@ -28,17 +28,15 @@
       name="http.server.requests"
       location="request.log" />
 
-  <!--
-      Use the DSP templates from the git checkout directly so that changes are
-      immediately reflected.
-
-      TODO: shouldn't be necessary to redundantly specify the base URL.
-  -->
+  <!-- Uses the DSP templates from the git checkout directly so that changes
+       are immediately reflected. -->
+  <!-- TODO: shouldn't be necessary to redundantly specify the base URL. -->
   <dylan-playground
-      root-directory="/home/cgay/dylan/workspaces/playground/dev"
-      shares-directory="/home/cgay/dylan/workspaces/playground/dev/shares"
-      template-directory="/home/cgay/dylan/workspaces/playground/dylan-playground"
       base-url="http://50.116.53.62:3600/"
+      dylan-compiler="/opt/opendylan/bin/dylan-compiler"
+      root-directory="/opt/dylan-playground/dev"
+      shares-directory="/opt/dylan-playground/dev/shares"
+      template-directory="/opt/dylan-playground/dev"
       />
 
 </http-server>

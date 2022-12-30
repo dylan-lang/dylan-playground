@@ -5,46 +5,38 @@ web browser.
 
 ## Installation
 
-* Install [dylan-tool](http://github.com/dylan-lang/dylan-tool)
-* Create a workspace containing this repository by running `dylan-tool new workspace playground`.
-* cd playground
+* Install [dylan-tool](http://github.com/dylan-lang/dylan-tool) if it's not
+  already part of your Open Dylan installation.
 * `git clone https://github.com/dylan-lang/dylan-playground`
-* Pull down all dependencies with `dylan-tool update`.
-* Build with `dylan-compiler -build dylan-playground`
+* `cd dylan-playground`
+* `dylan update`
+* `dylan build --all`
 
 ## Deployment
 
-I run the dev instance out of my "playground" workspace directory with
-`_build/bin/dylan-playground --config dylan-playground/config.dev.xml`.
+By default the playground is deployed to `/opt/dylan-playground/{dev,live}` and
+it expects `/opt/opendylan/bin/dylan-compiler` to exist. To change either of
+those you must edit the Makefile.
 
-To deploy "live":
+1.  Stop the current dylan-playground process so the executable file can be
+    replaced.  Usually just `systemctl stop dylan-playground`.
 
-* Modify `live/config.live.xml` to have absolute paths:
+1.  `make install` to install the "dev" instance. To install the "live"
+    instance, use `environment=live make install`.
 
-  ```xml
-  <dylan-playground
-      root-directory="/path/to/playground/live"
-      template-directory="/path/to/playground/live"
-      dylan-compiler="/path/to/opendylan/bin/dylan-compiler"
-      />
-  ```
+2.  The first time you deploy you'll need to configure systemd. As root, run
+    these commands:
 
-* Stop the current dylan-playground process so the executable file can be
-  replaced.
+    ```shell
+    cp dylan-playground.service /etc/systemd/system/
+    systemctl start dylan-playground
+    # ...check /var/log/syslog to see that it started correctly...
+    systemctl enable dylan-playground
+    ```
 
-* Run `dylan-playground/deploy.sh live` to deploy the code, assets, and Open
-  Dylan to the "live" directory.
-
-* Configure systemd. As root, run these commands:
-
-  ```shell
-  cp dylan-playground.service /etc/systemd/system/
-  systemctl start dylan-playground
-  # ...check /var/log/syslog to see that it started correctly...
-  systemctl enable dylan-playground
-  ```
-
-* Or start it by hand using the command in `dylan-playground.service`.
+3.  **NOTE that if you change the deployment directory you must move the
+    "shares" subdirectory to the new location or shared playground links will
+    be broken.**
 
 ## HTTPS
 
