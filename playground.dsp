@@ -176,10 +176,10 @@
       </div>
 
       <div class="links-row">
-        <a href="https://opendylan.org/documentation/#cheat-sheets" target="_blank">Cheat Sheets</a>
-        <a href="https://opendylan.org/documentation/library-reference" target="_blank">Library Docs</a>
+        <a href="https://opendylan.org/documentation/cheatsheets/index.html" target="_blank">Cheat Sheets</a>
+        <a href="https://opendylan.org/library-reference/index.html" target="_blank">Library Docs</a>
         <a href="https://opendylan.org/books/drm/Contents" target="_blank">Language Reference</a>
-        <a href="https://github.com/cgay/dylan-playground/issues" target="_blank">Report a bug</a>
+        <a href="https://github.com/dylan-lang/dylan-playground/issues" target="_blank">Report a bug</a>
       </div>
 
       <pre id="compiler-output" class="output"></pre>
