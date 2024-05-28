@@ -5,51 +5,60 @@ web browser.
 
 ## Installation
 
-* Install [dylan-tool](http://github.com/dylan-lang/dylan-tool) if it's not
-  already part of your Open Dylan installation.
+* Install Open Dylan 2023.1 so it has a reasonably up-to-date `dylan` binary.
 * `git clone https://github.com/dylan-lang/dylan-playground`
 * `cd dylan-playground`
 * `dylan update`
 * `dylan build --all`
 
-## Deployment
+## Deployment on Debian
+
+(These instructions were tested on Debian 12.)
 
 By default the playground is deployed to `/opt/dylan-playground/{dev,live}` and
 it expects `/opt/opendylan/bin/dylan-compiler` to exist. To change either of
 those you must edit the Makefile.
 
-1.  Stop the current dylan-playground process so the executable file can be
+1.  Stop the current `dylan-playground` process so the executable file can be
     replaced.  Usually just `systemctl stop dylan-playground`.
 
 1.  `make install` to install the "dev" instance. To install the "live"
     instance, use `environment=live make install`.
 
-2.  The first time you deploy you'll need to configure systemd. As root, run
+2.  The first time you deploy you'll need to configure `systemd`. As root, run
     these commands:
 
     ```shell
     cp dylan-playground.service /etc/systemd/system/
     systemctl start dylan-playground
-    # ...check /var/log/syslog to see that it started correctly...
-    systemctl enable dylan-playground
+    systemctl status dylan-playground  # and/or check journalctl output
+    systemctl enable dylan-playground  # enable starting after boot
     ```
 
 3.  **NOTE that if you change the deployment directory you must move the
     "shares" subdirectory to the new location or shared playground links will
-    be broken.**
+    break.**
+
+4.  Arrange for the "shares" directory to get backed up periodically since if
+    this is missing all shared playground URLs everywhere since the beginning
+    of time will be broken.
 
 ## HTTPS
 
 Dylan's `ssl-network` has bit rotted so in the interest of speed I just put the
-playground behind an nginx proxy. Here are some reminders about how I set it
+playground behind an `nginx` proxy. Here are some reminders about how I set it
 up.
 
-* Start nginx with default settings. It must listen on port 80 for the cert
+(These instructions were tested on Debian 12.)
+
+* `sudo apt install certbot nginx`
+
+* If you just installed `nginx` it should have started automatically. If not,
+  then `sudo systemctl start nginx`. It must listen on port 80 for the cert
   challenge.
 
 * Use certbot to install a Let's Encrypt cert and key:
   ```shell
-  $ sudo snap install certbot
   $ sudo certbot certonly --nginx
   ```
 
