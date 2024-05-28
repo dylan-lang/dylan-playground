@@ -177,7 +177,7 @@ inc!(x);
 inc!(x, 10);
 format-out("x = %d\n", x);
 
-// See https://opendylan.org/articles/macro-system/index.html to
+// See https://opendylan.org/articles/macro-system.html to
 // get a sense of the full power of macros.
 |),
            vector("Quicksort", #:string:|
