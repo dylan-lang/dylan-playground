@@ -90,7 +90,11 @@ define taglib playground ()
   tag library-code (page :: <playground-page>) ()
     begin
       let name = generate-project-name();
-      output($library-file-template, name, name);
+      // Here we HTML quote the library code because it appears inside a <pre> element.
+      // I guess it's not necessary when inside a <textarea> element.  Should figure out
+      // the "right" way to manage this kind of thing.  Probably with a tag keyword
+      // quote-html=off, and default to on?
+      output(quote-html($library-file-template), name, name);
     end;
   tag examples-menu (page :: <playground-page>) ()
     for (v in $examples)
