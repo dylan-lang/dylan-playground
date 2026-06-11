@@ -221,64 +221,65 @@ end function;
 define constant $lid-file-template
   = "library: %s\nexecutable: %s\nfiles: %s\n       %s\n";
 
-define constant $library-file-template = #:string:|Module: dylan-user
+define constant $library-file-template = """
+  Module: dylan-user
 
-define library %s
-  use dylan,
-    import: { dylan-extensions };
-  use common-dylan,
-    import: {
-      byte-vector, common-dylan, machine-words, simple-random, simple-timers,
-      simple-profiling, transcendentals
-    };
-  use generic-arithmetic;
-  use big-integers;             // for side-effect only
-  use hash-algorithms;
-  use json;
-  use io,
-    import: { format, format-out, print, pprint, standard-io, streams };
-  use logging;
-  use regular-expressions;
-  use strings;
-  use system, import: { date, locators };
-  use testworks;
-end library;
+  define library %s
+    use dylan,
+      import: { dylan-extensions };
+    use common-dylan,
+      import: {
+        byte-vector, common-dylan, machine-words, simple-random, simple-timers,
+        simple-profiling, transcendentals
+      };
+    use generic-arithmetic;
+    use big-integers;             // for side-effect only
+    use hash-algorithms;
+    use json;
+    use io,
+      import: { format, format-out, print, pprint, standard-io, streams };
+    use logging;
+    use regular-expressions;
+    use strings;
+    use system, import: { date, locators };
+    use testworks;
+  end library;
 
-define module %s
-  // Modules imported from the common-dylan library...
-  use byte-vector;
-  use common-dylan;
-  use machine-words;
-  use simple-random;
-  use simple-timers;
-  use simple-profiling;
-  use transcendentals;
-  // Modules imported from the dylan library...
-  use dylan-extensions;
-  // Modules imported from the system library...
-  use date;
-  use locators;
-  // Modules imported from the io library...
-  use format;
-  use format-out;
-  use print;
-  use pprint;
-  use standard-io;
-  use streams;
-  // Modules imported from libraries by the same name...
-  use generic-arithmetic,
-    prefix: "big-",             // big-+, big-*, etc.
-    rename: { $maximum-integer => $maximum-big-int,
-              $minimum-integer => $minimum-big-int,
-              <integer> => <big-int> };
-  use hash-algorithms;
-  use json;
-  use logging;
-  use regular-expressions;
-  use strings;
-  use testworks;
-end module;
-|;
+  define module %s
+    // Modules imported from the common-dylan library...
+    use byte-vector;
+    use common-dylan;
+    use machine-words;
+    use simple-random;
+    use simple-timers;
+    use simple-profiling;
+    use transcendentals;
+    // Modules imported from the dylan library...
+    use dylan-extensions;
+    // Modules imported from the system library...
+    use date;
+    use locators;
+    // Modules imported from the io library...
+    use format;
+    use format-out;
+    use print;
+    use pprint;
+    use standard-io;
+    use streams;
+    // Modules imported from libraries by the same name...
+    use generic-arithmetic,
+      prefix: "big-",             // big-+, big-*, etc.
+      rename: { $maximum-integer => $maximum-big-int,
+                $minimum-integer => $minimum-big-int,
+                <integer> => <big-int> };
+    use hash-algorithms;
+    use json;
+    use logging;
+    use regular-expressions;
+    use strings;
+    use testworks;
+  end module;
+  """;
 
 define constant $code-file-template = "module: %s\n\n%s\n";
 
