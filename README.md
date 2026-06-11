@@ -5,11 +5,11 @@ web browser.
 
 ## Installation
 
-* Install Open Dylan 2023.1 so it has a reasonably up-to-date `dylan` binary.
+* Install Open Dylan 2026.1 or later so it has a reasonably up-to-date `deft` binary.
 * `git clone https://github.com/dylan-lang/dylan-playground`
 * `cd dylan-playground`
-* `dylan update`
-* `dylan build --all`
+* `deft update`
+* `deft build --all`
 
 ## Deployment on Debian
 

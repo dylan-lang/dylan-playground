@@ -231,6 +231,8 @@ define library %s
       byte-vector, common-dylan, machine-words, simple-random, simple-timers,
       simple-profiling, transcendentals
     };
+  use generic-arithmetic;
+  use big-integers;             // for side-effect only
   use hash-algorithms;
   use json;
   use io,
@@ -264,6 +266,11 @@ define module %s
   use standard-io;
   use streams;
   // Modules imported from libraries by the same name...
+  use generic-arithmetic,
+    prefix: "big-",             // big-+, big-*, etc.
+    rename: { $maximum-integer => $maximum-big-int,
+              $minimum-integer => $minimum-big-int,
+              <integer> => <big-int> };
   use hash-algorithms;
   use json;
   use logging;

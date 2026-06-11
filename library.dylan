@@ -9,6 +9,7 @@ define library dylan-playground
   use io,
     import: { format, format-out, streams };
   use json;
+  use logging;
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
@@ -45,8 +46,6 @@ define module dylan-playground
               get-query-value,
               get-session,
               http-server-main,
-              log-debug,
-              log-info,
               output,
               page-context,
               process-config-element,
@@ -63,6 +62,7 @@ define module dylan-playground
               resolve-locator,
               simplify-locator,
               subdirectory-locator };
+  use logging;
   use operating-system,
     prefix: "os/";
   use simple-profiling,         // from common-dylan
