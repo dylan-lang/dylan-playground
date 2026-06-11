@@ -11,13 +11,13 @@ install_bin     = $(install_dir)/bin
 .PHONY: build clean install dist distclean
 
 build:
-	dylan update
-	dylan build --unify dylan-playground
+	deft update
+	deft build --unify dylan-playground
 
 install: build
 	mkdir -p $(install_bin)
 	mkdir -p $(install_dir)/shares
-	cp _build/sbin/dylan-playground.dbg $(install_bin)/dylan-playground
+	cp _build/sbin/dylan-playground $(install_bin)/dylan-playground
 	cp -p playground.dsp $(install_dir)/
 	cp -r static $(install_dir)/
 	cp -p config.$(environment).xml $(install_dir)/config.xml
