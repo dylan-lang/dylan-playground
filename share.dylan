@@ -10,11 +10,11 @@ define constant $share-format = 1;
 define class <create-share> (<resource>) end;
 define class <lookup-share> (<resource>) end;
 
-define constant $shared-playground-error-message =
-  #:string:"
-// This Dylan Playground URL is not associated with any saved code.
-// It is possible the URL was copied incorrectly, or that it is too
-// old and the code has been deleted.";
+define constant $shared-playground-error-message = """
+  // ERROR: This Dylan Playground URL is not associated with any saved code.
+  // It is possible the URL was copied incorrectly, or that it is too old
+  // and the shared example has been deleted.
+  """;
 
 define method respond-to-get (resource :: <lookup-share>, #key key) => ()
   let code = (key & find-share(key)) | $shared-playground-error-message;
