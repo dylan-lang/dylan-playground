@@ -3,6 +3,7 @@
   <head>
     <%dsp:taglib name="playground"/>
     <link rel="shortcut icon" href="/static/favicon.ico"/>
+    <link rel="me" href="https://fosstodon.org/@DylanLang"/>
 
     <title>Dylan Playground</title>
 
