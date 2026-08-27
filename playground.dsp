@@ -166,7 +166,7 @@
       </div>
 
       <div id="module-definition" style="display: none">
-        Your code is compiled in this module. (In the future the module will be editable.)
+        Your code is compiled with the following module definition:
         <code>
           <pre><playground:library-code/></pre>
         </code>
