@@ -3,6 +3,7 @@
   <head>
     <%dsp:taglib name="playground"/>
     <link rel="shortcut icon" href="/static/favicon.ico"/>
+    <link rel="me" href="https://fosstodon.org/@DylanLang"/>
 
     <title>Dylan Playground</title>
 
@@ -165,7 +166,7 @@
       </div>
 
       <div id="module-definition" style="display: none">
-        Your code is compiled in this module. (In the future the module will be editable.)
+        Your code is compiled with the following module definition:
         <code>
           <pre><playground:library-code/></pre>
         </code>

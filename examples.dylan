@@ -15,12 +15,12 @@ define constant $examples
   = vector(
 
    vector("Hello World",
-          """
+          #r""""
           format-out("Hello %s\n", "World")
-          """),
+          """"),
 
    vector("Fibonacci Closure",
-          """
+          #r""""
           define method fib ()
             let a = 0;
             let b = 1;
@@ -34,10 +34,10 @@ define constant $examples
 
           let f = fib();
           for (i from 1 to 20) format-out("%= ", f()) end;
-          """),
+          """"),
 
    vector("Factorial, recursive",
-          """
+          #r""""
           // A recursive version of factorial using singleton method dispatch.
           define method factorial (n == 0) 1 end;  // called when n = 0
           define method factorial (n == 1) 1 end;  // called when n = 1
@@ -51,10 +51,10 @@ define constant $examples
           // * Rewrite the code so it uses a single method instead of three. Which do you prefer?
           // * Uncomment this line and fix the resulting errors:
           //   define generic factorial (n :: <integer>) => (n :: <integer>);
-          """),
+          """"),
 
    vector("Factorial, iterative",
-          """
+          #r""""
           define function factorial (n :: <integer>) => (factorial :: <integer>)
             iterate loop (n = n, total = 1)
               if (n < 2)
@@ -68,10 +68,10 @@ define constant $examples
           format-out("%d", factorial(10));
 
           // Try rewriting it using a more traditional "for" loop!
-          """),
+          """"),
 
    vector("for loop",
-          """
+          #r""""
           // The "for" loop may have multiple iteration clauses. The first
           // one to terminate ends the iteration.
 
@@ -80,10 +80,10 @@ define constant $examples
                until: c = 'e')
             format-out("%d: %s\n", i, c);
           end;
-          """),
+          """"),
 
    vector("Classes",
-          """
+          #r""""
           // Classes are the primary way to build data structures in Dylan.
           // Slots are accessed via normal function calls.
 
@@ -99,10 +99,10 @@ define constant $examples
           account-balance(a) := 500;
           format-out("%s (#%d) balance = %d",
                      account-name(a), account-id(a), account-balance(a));
-          """),
+          """"),
 
    vector("Error handling",
-          """
+          #r""""
           block ()
             format-out("%=", floof)
           exception (err :: <error>)
@@ -114,10 +114,10 @@ define constant $examples
           //   This is so that you can do interactive development without adding stubs for
           //   unfinished code. (Of course running the unfinished code causes an error.)
           // * Replace "floof" with other kinds of run-time errors.
-          """),
+          """"),
 
    vector("List subclasses",
-          """
+          #r""""
           // Display a class's subclasses via indentation while
           // avoiding repetition due to multiple inheritance.
 
@@ -142,10 +142,10 @@ define constant $examples
           // Things to try:
           // * Change <collection> to <number>, <object>, or object-class(42).
           // * Make list-subclasses(42) work. I.e., passing an integer or string.
-          """),
+          """"),
 
    vector("Graph Subclasses",
-          """
+          #r""""
           // Generate DOT language to represent a subclass graph.
           // One quick way to view the graph is to paste it here:
           // https://dreampuf.github.io/GraphvizOnline/
@@ -168,10 +168,10 @@ define constant $examples
           end function;
 
           dot(<number>)
-          """),
+          """"),
 
    vector("Macros",
-          """
+          #r""""
           // Macros define new syntax. Much of core Dylan syntax, such as "for"
           // and "case", are implemented with macros. For example, suppose you
           // would rather write
@@ -191,10 +191,10 @@ define constant $examples
 
           // See https://opendylan.org/articles/macro-system.html to
           // get a sense of the full power of macros.
-          """),
+          """"),
 
    vector("Quicksort",
-          """
+          #r""""
           // A mostly dynamically typed version of quicksort.
 
           define method quicksort!
@@ -233,7 +233,7 @@ define constant $examples
 
           quicksort!(vector("my", "dog", "has", "fleas"));
           quicksort!(list(4, 2, 900, -6));
-          """));
+          """"));
 
 //// end define constant $examples
 
